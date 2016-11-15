@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_sing"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backGroudn">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+        <android.support.v7.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="프로필 설정"
+                android:textColor="@android:color/white"
+                android:textSize="16dp"/>
+        </android.support.v7.widget.Toolbar>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="닉네임"
+                android:textColor="@color/colorPrimary"
+                android:layout_gravity="center"
+                android:textSize="15dp"/>
+
+            <EditText
+                android:id="@+id/sign_nickname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/rect_edit_text"
+                android:hint="8자리 이하"
+                android:lines="1"
+                android:maxLength="8"
+                android:padding="10dp"
+                android:textCursorDrawable="@null"
+                android:textSize="15dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="나이"
+                android:layout_gravity="center"
+                android:textColor="@color/colorPrimary"
+                android:textSize="15dp"/>
+
+            <EditText
+                android:id="@+id/sign_age"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/rect_edit_text"
+                android:hint="실제 나이 입력"
+                android:lines="1"
+                android:maxLength="2"
+                android:padding="10dp"
+                android:inputType="number"
+                android:textCursorDrawable="@null"
+                android:textSize="15dp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="지역"
+            android:layout_gravity="center"
+            android:textColor="@color/colorPrimary"
+            android:textSize="15dp"/>
+
+        <Button
+            android:id="@+id/sign_local"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="지역 검색"
+            android:textSize="15dp"
+            android:background="@drawable/rect_white_btn"/>
+    </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="성별"
+                android:layout_gravity="center"
+                android:textColor="@color/colorPrimary"
+                android:textSize="15dp"/>
+
+            <Button
+                android:id="@+id/sign_gender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="성별 검색"
+                android:textSize="15dp"
+                android:background="@drawable/rect_white_btn"/>
+        </LinearLayout>
+    </LinearLayout>
+    <Button
+        android:id="@+id/sign_profile_next"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/rect_primary_btn"
+        android:text="프로필 입력완료"
+        android:textColor="@android:color/white"
+        android:padding="10dp"
+        android:textSize="15dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"/>
+</RelativeLayout>

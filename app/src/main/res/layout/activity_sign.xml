@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_sing"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backGroudn">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="회원가입"
+                android:textColor="@android:color/white"
+                android:textSize="16dp"/>
+        </android.support.v7.widget.Toolbar>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sign_email"
+                android:textColor="@android:color/black"
+                android:textSize="15dp"/>
+
+            <EditText
+                android:id="@+id/sign_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/rect_edit_text"
+                android:hint="example@example.com"
+                android:inputType="textEmailAddress"
+                android:lines="1"
+                android:padding="10dp"
+                android:textCursorDrawable="@null"
+                android:textSize="15dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="비밀번호"
+                android:textColor="@android:color/black"
+                android:textSize="15dp"/>
+
+            <EditText
+                android:id="@+id/sign_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/rect_edit_text"
+                android:hint="6자리 이상 12자리 이하"
+                android:inputType="textPassword"
+                android:maxLength="12"
+                android:padding="10dp"
+                android:textCursorDrawable="@null"
+                android:textSize="15dp"/>
+        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="이메일은 비밀번호 찾을때 필요합니다.\n정확히 입력해주세요."
+            android:textColor="@color/colorPrimary"
+            android:textSize="10dp"
+            android:layout_margin="10dp"
+            />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/sign_next_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="10dp"
+        android:text="다음 화면"
+        android:textColor="@android:color/white"
+        android:textSize="15dp"
+        android:background="@drawable/rect_primary_btn"
+        />
+</RelativeLayout>

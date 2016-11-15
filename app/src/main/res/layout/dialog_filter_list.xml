@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="리스트 필터"
+            android:textColor="@android:color/white"
+            android:layout_margin="10dp"/>
+    </FrameLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="지역"
+            android:layout_gravity="center"
+            android:textColor="@color/colorPrimary"
+            android:textSize="15dp"/>
+
+        <Button
+            android:id="@+id/filter_dialog_local"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="지역 검색"
+            android:textSize="15dp"
+            android:background="@drawable/rect_white_btn"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="성별"
+            android:layout_gravity="center"
+            android:textColor="@color/colorPrimary"
+            android:textSize="15dp"/>
+
+        <Button
+            android:id="@+id/filter_dialog_gender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="성별 검색"
+            android:textSize="15dp"
+            android:background="@drawable/rect_white_btn"/>
+    </LinearLayout>
+    <Button
+        android:id="@+id/filter_upload_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10dp"
+        android:text="필터 설정 완료"
+        android:textColor="@android:color/white"
+        android:theme="@style/BasicButton"/>
+</LinearLayout>

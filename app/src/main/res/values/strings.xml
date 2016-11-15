@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">SocialBlindDate</string>
+    <string name="app_name_start">TestService</string>
+
+    <string name="next">앞으로 가기</string>
+    <string name="skip">뒤로 가기</string>
+    <string name="sign">회원가입 하기</string>
+    <string name="login">로그인 하기</string>
+    <string name="writer_notice">-내용을 입력해주세요.\n-음란글, 음란사진 등록 금지 입니다.\n-연락처,카카오톡아이디를 기제하지 마세요.\n-위 사항의 어길시 영구제명 입니다!</string>
+
+    <string name="slide_1_title">안녕하세요</string>
+    <string name="slide_1_desc">테스트 서비스에 오신걸 환영합니다!</string>
+
+    <string name="slide_2_title">안녕하세요</string>
+    <string name="slide_2_desc">테스트 서비스에 오신걸 환영합니다!</string>
+
+    <string name="slide_3_title">안녕하세요</string>
+    <string name="slide_3_desc">테스트 서비스에 오신걸 환영합니다!</string>
+
+    <string name="slide_4_title">안녕하세요</string>
+    <string name="slide_4_desc">테스트 서비스에 오신걸 환영합니다!</string>
+
+    <string name="play_again_desc">To see the welcome slider again, goto Settings -> apps -> welcome slider -> clear data</string>
+    <string name="play_again">Play Again</string>
+
+    <string name="sign_welcome">회원가입</string>
+    <string name="sign_email">이메일</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
