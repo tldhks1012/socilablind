@@ -26,47 +26,47 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 public class DetailPostAct extends AppCompatActivity {
 
-    private TextView detailBody,detailProfileGender,detailProfileAge,detailProfileLocal,detailNoImg;
-    private ImageView detailProfileImg,detailImg;
-    private FirebaseAuth firebaseAuth=FirebaseAuth.getInstance();
-    private FirebaseDatabase firebaseDatabase= FirebaseDatabase.getInstance();
-    private DatabaseReference dbRef=firebaseDatabase.getReference().getRoot();
+    private TextView detailBody, detailProfileGender, detailProfileAge, detailProfileLocal, detailNoImg;
+    private ImageView detailProfileImg, detailImg;
+    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+    private DatabaseReference dbRef = firebaseDatabase.getReference().getRoot();
     private DatabaseReference man_Ref;
     private DatabaseReference women_Ref;
-    private String gender,postKey;
-    private StorageReference storageReference= FirebaseStorage.getInstance().getReference();
+    private String gender, postKey;
+    private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_post);
 
-        Intent intent= getIntent();
-        gender =intent.getStringExtra("gender");
-        postKey=intent.getStringExtra("postKey");
+        Intent intent = getIntent();
+        gender = intent.getStringExtra("gender");
+        postKey = intent.getStringExtra("postKey");
 
-        man_Ref=dbRef.child("/posts/man-posts/");
-        women_Ref=dbRef.child("/posts/women-posts/");
+        man_Ref = dbRef.child("/posts/man-posts/");
+        women_Ref = dbRef.child("/posts/women-posts/");
         init();
     }
 
-    private void init(){
-        detailBody=(TextView)findViewById(R.id.detail_post_body);
-        detailProfileGender=(TextView)findViewById(R.id.detail_profile_gender);
-        detailProfileAge=(TextView)findViewById(R.id.detail_profile_age);
-        detailProfileLocal=(TextView)findViewById(R.id.detail_profile_local);
-        detailProfileImg=(ImageView)findViewById(R.id.detail_profile_img);
-        detailImg=(ImageView)findViewById(R.id.detail_post_img);
-        detailNoImg=(TextView)findViewById(R.id.detail_no_img);
+    private void init() {
+        detailBody = (TextView) findViewById(R.id.detail_post_body);
+        detailProfileGender = (TextView) findViewById(R.id.detail_profile_gender);
+        detailProfileAge = (TextView) findViewById(R.id.detail_profile_age);
+        detailProfileLocal = (TextView) findViewById(R.id.detail_profile_local);
+        detailProfileImg = (ImageView) findViewById(R.id.detail_profile_img);
+        detailImg = (ImageView) findViewById(R.id.detail_post_img);
+        detailNoImg = (TextView) findViewById(R.id.detail_no_img);
         getData();
     }
 
-    private void getData(){
-        if(gender.equals("여자")){
+    private void getData() {
+        if (gender.equals("여자")) {
             women_Ref.child(postKey).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    Post post =dataSnapshot.getValue(Post.class);
+                    Post post = dataSnapshot.getValue(Post.class);
 
                     Glide.with(DetailPostAct.this).using(new FirebaseImageLoader()).load(storageReference.child(post.userProfileImg)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
                             crossFade(1000).into(detailProfileImg);
@@ -76,11 +76,10 @@ public class DetailPostAct extends AppCompatActivity {
                     detailProfileGender.setText(post.gender);
                     detailProfileLocal.setText(post.local);
 
-                    if(post.img1.equals("@null")){
+                    if (post.img1.equals("@null")) {
                         detailNoImg.setVisibility(View.VISIBLE);
-                    }else{
-                        Glide.with(DetailPostAct.this).using(new FirebaseImageLoader()).load(storageReference.child(post.img1)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
-                                crossFade(1000).into(detailImg);
+                    } else {
+                        Glide.with(DetailPostAct.this).using(new FirebaseImageLoader()).load(storageReference.child(post.img1)).into(detailImg);
                     }
 
 
@@ -91,11 +90,11 @@ public class DetailPostAct extends AppCompatActivity {
 
                 }
             });
-        }else if(gender.equals("남자")){
+        } else if (gender.equals("남자")) {
             man_Ref.child(postKey).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    Post post =dataSnapshot.getValue(Post.class);
+                    Post post = dataSnapshot.getValue(Post.class);
 
                     Glide.with(DetailPostAct.this).using(new FirebaseImageLoader()).load(storageReference.child(post.userProfileImg)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
                             crossFade(1000).into(detailProfileImg);
@@ -105,11 +104,10 @@ public class DetailPostAct extends AppCompatActivity {
                     detailProfileGender.setText(post.gender);
                     detailProfileLocal.setText(post.local);
 
-                    if(post.img1.equals("@null")){
+                    if (post.img1.equals("@null")) {
                         detailNoImg.setVisibility(View.VISIBLE);
-                    }else{
-                        Glide.with(DetailPostAct.this).using(new FirebaseImageLoader()).load(storageReference.child(post.img1))
-                                .into(detailImg);
+                    } else {
+                        Glide.with(DetailPostAct.this).using(new FirebaseImageLoader()).load(storageReference.child(post.img1)).into(detailImg);
                     }
                 }
 
