@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_detail_post"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
+    android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,23 +24,25 @@
                 android:textSize="16dp"/>
         </android.support.v7.widget.Toolbar>
 
-        <android.support.v7.widget.CardView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:card_view="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/card_view"
+
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp">
+            android:layout_marginBottom="40dp">
 
-            <ScrollView
+            <android.support.v7.widget.CardView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/card_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                card_view:cardCornerRadius="2dp"
+                card_view:contentPadding="10dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_margin="10dp">
+                    android:orientation="vertical">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -52,7 +52,6 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
                             android:orientation="horizontal">
 
                             <ImageView
@@ -99,27 +98,22 @@
                             android:id="@+id/detail_post_body"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:scrollbars="vertical"
                             android:layout_margin="20dp"/>
                     </FrameLayout>
 
 
-                    <FrameLayout
+                    <android.support.v7.widget.CardView
                         android:layout_width="match_parent"
-                        android:layout_height="200dp">
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="0.3dp"
-                            android:background="@color/colorPrimary"
-                            android:layout_gravity="top"/>
-                        <View
-                            android:layout_width="0.3dp"
-                            android:layout_height="match_parent"
-                            android:background="@color/colorPrimary"
-                            android:layout_gravity="left"/>
+                        android:layout_height="200dp"
+                        android:layout_margin="5dp"
+                        card_view:cardCornerRadius="4dp"
+                        card_view:cardBackgroundColor="@color/backGroudn">
+
                         <ImageView
                             android:id="@+id/detail_post_img"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
                         <TextView
                             android:id="@+id/detail_no_img"
                             android:layout_width="wrap_content"
@@ -128,21 +122,122 @@
                             android:text="등록된 이미지가 없습니다"
                             android:textSize="10dp"
                             android:visibility="invisible"/>
-                        <View
-                            android:layout_width="0.3dp"
-                            android:layout_height="match_parent"
-                            android:background="@color/colorPrimary"
-                            android:layout_gravity="right"/>
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="0.3dp"
-                            android:background="@color/colorPrimary"
-                            android:layout_gravity="bottom"/>
-                    </FrameLayout>
-                </LinearLayout>
 
-            </ScrollView>
+                        <com.rey.material.widget.ProgressView
+                            android:id="@+id/detail_image_progress"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            card_view:pv_autostart="true"
+                            card_view:pv_circular="true"
+                            card_view:pv_progressStyle="@style/Material.Drawable.CircularProgress"
+                            card_view:pv_progressMode="indeterminate"
+                            android:layout_gravity="center"/>
+                    </android.support.v7.widget.CardView>
+                </LinearLayout>
         </android.support.v7.widget.CardView>
+        </ScrollView>
     </LinearLayout>
 
-</FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/detail_no_uid_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:background="@color/colorGray"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <FrameLayout
+            android:id="@+id/go_to_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:background="@drawable/layout_normal_btn">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="메세지 보내기"
+                android:layout_margin="10dp"/>
+        </FrameLayout>
+        <View
+            android:layout_width="0.3dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorGray"/>
+        <FrameLayout
+            android:id="@+id/go_to_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:background="@drawable/layout_normal_btn">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="프로필 보기"
+                android:layout_margin="10dp"/>
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/detail_uid_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:background="@color/colorGray"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <FrameLayout
+                android:id="@+id/detail_post_delete_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:background="@drawable/layout_normal_btn">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="삭제하기"
+                    android:layout_margin="10dp"/>
+            </FrameLayout>
+            <View
+                android:layout_width="0.3dp"
+                android:layout_height="match_parent"
+                android:background="@color/colorGray"/>
+            <FrameLayout
+                android:id="@+id/detail_post_change_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:background="@drawable/layout_normal_btn">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="수정하기"
+                    android:layout_margin="10dp"/>
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

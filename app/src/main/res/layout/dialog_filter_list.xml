@@ -10,7 +10,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="리스트 필터"
+            android:text="지역 선택"
             android:textColor="@android:color/white"
             android:layout_margin="10dp"/>
     </FrameLayout>
@@ -34,30 +34,9 @@
             android:layout_marginTop="10dp"
             android:hint="지역 검색"
             android:textSize="15dp"
-            android:background="@drawable/rect_white_btn"/>
+            android:background="@drawable/rect_primary_btn"/>
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="성별"
-            android:layout_gravity="center"
-            android:textColor="@color/colorPrimary"
-            android:textSize="15dp"/>
 
-        <Button
-            android:id="@+id/filter_dialog_gender"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="성별 검색"
-            android:textSize="15dp"
-            android:background="@drawable/rect_white_btn"/>
-    </LinearLayout>
     <Button
         android:id="@+id/filter_upload_btn"
         android:layout_width="match_parent"

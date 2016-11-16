@@ -47,7 +47,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private ProgressView progressView;
     private RecyclerView recyclerView;
 
-
+///생성자 포스트리스트, 엑티비티, 데이터베이스 레퍼런스, 프로그래스뷰, 리사이클뷰
     public PostAdapter(List<Post> postList, Activity activity, DatabaseReference ref,ProgressView progressView,RecyclerView recyclerView) {
         this.postList = postList;
         this.activity=activity;
@@ -75,14 +75,12 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //
 //        }
 if (holder instanceof PostHolder) {
-
             final Post post=postList.get(position);
             if(post.userProfileImg!=null) {
                 ((PostHolder) holder).cardUserGender.setText(post.gender);
                 ((PostHolder) holder).cardUserAge.setText(post.age);
                 ((PostHolder) holder).cardUserLocal.setText(post.local);
                 ((PostHolder) holder).cardPostTitle.setText(post.title);
-
                Glide.with(activity).using(new FirebaseImageLoader()).load(storageReference.child(post.userProfileImg)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
                        crossFade(1000).into(((PostHolder) holder).cardUserImg);
                 progressView.setVisibility(View.INVISIBLE);
@@ -104,6 +102,7 @@ if (holder instanceof PostHolder) {
                         Intent intent = new Intent(activity, DetailPostAct.class);
                         intent.putExtra("gender",post.gender);
                         intent.putExtra("postKey",post.postKey);
+                        intent.putExtra("local",post.local);
                         activity.startActivity(intent);
 
                     }

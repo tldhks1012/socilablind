@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,6 +33,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.kkkhhh.socialblinddate.Etc.DataBaseFiltering;
 import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.Model.UserImg;
 import com.kkkhhh.socialblinddate.Model.UserModel;
@@ -83,6 +85,8 @@ public class PostWriterAct extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
+    private String updateLocal,updateGender,updatePostKey,updateImg1;
+
     String key ;
 
     private static final int PICK_FROM_GALLERY = 0;
@@ -98,13 +102,13 @@ public class PostWriterAct extends AppCompatActivity {
 
     private void init() {
 
+
+
         writerTitle = (EditText) findViewById(R.id.writer_title);
         writerBody = (EditText) findViewById(R.id.writer_body);
 
         writer_img1 = (ImageView) findViewById(R.id.writer_img1);
         writerImgArray.add(writer_img1);
-
-
 
         writerImgCheckArray.add(writer_img1_check);
 
@@ -133,12 +137,15 @@ public class PostWriterAct extends AppCompatActivity {
 
         progressDialog = new ProgressDialog(PostWriterAct.this);
 
-        storageRef = storage.getReferenceFromUrl("gs://socialblinddate.appspot.com");
+        storageRef = storage.getReference();
         storageRef = storageRef.getRoot();
 
         uploadButton = (Button) findViewById(R.id.writer_img_upload_btn);
 
+        receiveIntent();
+
         imgInit();
+
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -155,6 +162,53 @@ public class PostWriterAct extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void receiveIntent(){
+        Intent intent =getIntent();
+        if(intent.getStringExtra("local")!=null){
+            updateLocal=intent.getStringExtra("local");
+            updateGender=intent.getStringExtra("gender");
+            updatePostKey=intent.getStringExtra("postKey");
+
+            if(updateGender.equals("남자")){
+                dbRef.child("posts").child("man-posts").child(updatePostKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot!=null){
+                            Post post=dataSnapshot.getValue(Post.class);
+                            writerTitle.setText(post.title);
+                            writerBody.setText(post.body);
+                            if(!post.img1.equals("@null")) {
+                                Glide.with(PostWriterAct.this).using(new FirebaseImageLoader()).load(storageRef.child(post.img1)).centerCrop().into(writer_img1);
+                                writerImgCheckArray.set(0, true);
+                                updateImg1=post.img1;
+                            }
+                        }
+                        uploadButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                writerTitleStr = writerTitle.getText().toString();
+                                writerBodyStr = writerBody.getText().toString();
+
+                                if (TextUtils.isEmpty(writerTitleStr)) {
+                                    Toast.makeText(PostWriterAct.this, "제목을 입력해주세요.", Toast.LENGTH_SHORT).show();
+                                } else if (TextUtils.isEmpty(writerBodyStr)) {
+                                    Toast.makeText(PostWriterAct.this, "내용을 입력해주세요.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    uploadButtonClick();
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        }
     }
 
     //////이미지 버튼 클릭
@@ -329,8 +383,6 @@ public class PostWriterAct extends AppCompatActivity {
         } else {
             writer_img1_str = "@null";
         }
-
-
         uploadStorage();
     }
 
@@ -344,14 +396,22 @@ public class PostWriterAct extends AppCompatActivity {
             StorageReference img1_Ref = storageRef.child("post").child(key).child(getUid).child("img1");
             img1_Ref.putBytes(file);
             writer_img1_str = img1_Ref.getPath();
-
         }
 
-        writeNewPost(getUid,userProfileImg, writerTitleStr, writerBodyStr, writer_img1_str,userLocal,userGender,userAge);
-
+        if(updateLocal!=null){
+            if(!updateImg1.equals("@null")){
+                writeNewPost(getUid, userProfileImg, writerTitleStr, writerBodyStr, updateImg1, userLocal, userGender, userAge,updatePostKey);
+            }else{
+                writeNewPost(getUid, userProfileImg, writerTitleStr, writerBodyStr, writer_img1_str, userLocal, userGender, userAge,updatePostKey);
+            }
+        }else {
+            writeNewPost(getUid, userProfileImg, writerTitleStr, writerBodyStr, writer_img1_str, userLocal, userGender, userAge,key);
+        }
     }
 
-    private void writeNewPost(String userId,String userImg, String title, String body, String img1,String local,String gender,String age) {
+
+
+    private void writeNewPost(String userId,String userImg, String title, String body, String img1,String local,String gender,String age,String key) {
         long now = System.currentTimeMillis();
         Date date = new Date(now);
         SimpleDateFormat CurDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -359,122 +419,16 @@ public class PostWriterAct extends AppCompatActivity {
         Post post = new Post(userId,userImg, title, body, img1,local,gender,age,strCurDate,key);
         Map<String, Object> postValues = post.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
-        /*childUpdates.put("/posts/" + key, postValues);*/
+
         childUpdates.put("/user-posts/" + userId + "/" + key, postValues);
+        DataBaseFiltering dbFilter = new DataBaseFiltering();
+        local=dbFilter.changeLocal(local);
         if(gender.equals("여자")) {
             childUpdates.put("/posts/women-posts/" + key, postValues);
-            switch (local){
-                case "서울" :
-                    childUpdates.put("/posts/women/seoul/" + key, postValues);
-                    break;
-                case "부산" :
-                    childUpdates.put("/posts/women/busan/" + key, postValues);
-                    break;
-                case "대구" :
-                    childUpdates.put("/posts/women/deagu/" + key, postValues);
-                    break;
-                case "대전" :
-                    childUpdates.put("/posts/women/deajoen/" + key, postValues);
-                    break;
-                case "울산" :
-                    childUpdates.put("/posts/women/ulsan/" + key, postValues);
-                    break;
-                case "광주" :
-                    childUpdates.put("/posts/women/gwangju" + key, postValues);
-                    break;
-                case "인천" :
-                    childUpdates.put("/posts/women/incheon/" + key, postValues);
-                    break;
-                case "세종" :
-                    childUpdates.put("/posts/women/sejong/" + key, postValues);
-                    break;
-                case "경기" :
-                    childUpdates.put("/posts/women/kyunggi/" + key, postValues);
-                    break;
-                case "경남" :
-                    childUpdates.put("/posts/women/kyungnam/" + key, postValues);
-                    break;
-                case "경북" :
-                    childUpdates.put("/posts/women/kyungbuk/" + key, postValues);
-                    break;
-                case "전남" :
-                    childUpdates.put("/posts/women/jeonnam/" + key, postValues);
-                    break;
-                case "전북" :
-                    childUpdates.put("/posts/women/jeonbuk/" + key, postValues);
-                    break;
-                case "강원" :
-                    childUpdates.put("/posts/women/kangwon/" + key, postValues);
-                    break;
-                case "제주" :
-                    childUpdates.put("/posts/women/jeju/" + key, postValues);
-                    break;
-                case "충북" :
-                    childUpdates.put("/posts/women/chungbuk/" + key, postValues);
-                    break;
-                case "충남" :
-                    childUpdates.put("/posts/women/chungnam/" + key, postValues);
-                    break;
-                default:
-                    break;
-            }
+            childUpdates.put("/posts/women/" + "/"+local+"/"+key, postValues);
         }else if(gender.equals("남자")){
             childUpdates.put("/posts/man-posts/" + key, postValues);
-            switch (local){
-                case "서울" :
-                    childUpdates.put("/posts/man/seoul/" + key, postValues);
-                    break;
-                case "부산" :
-                    childUpdates.put("/posts/man/busan/" + key, postValues);
-                    break;
-                case "대구" :
-                    childUpdates.put("/posts/man/deagu/" + key, postValues);
-                    break;
-                case "대전" :
-                    childUpdates.put("/posts/man/deajoen/" + key, postValues);
-                    break;
-                case "울산" :
-                    childUpdates.put("/posts/man/ulsan/" + key, postValues);
-                    break;
-                case "광주" :
-                    childUpdates.put("/posts/man/gwangju" + key, postValues);
-                    break;
-                case "인천" :
-                    childUpdates.put("/posts/man/incheon/" + key, postValues);
-                    break;
-                case "세종" :
-                    childUpdates.put("/posts/man/sejong/" + key, postValues);
-                    break;
-                case "경기" :
-                    childUpdates.put("/posts/man/kyunggi/" + key, postValues);
-                    break;
-                case "경남" :
-                    childUpdates.put("/posts/man/kyungnam/" + key, postValues);
-                    break;
-                case "경북" :
-                    childUpdates.put("/posts/man/kyungbuk/" + key, postValues);
-                    break;
-                case "전남" :
-                    childUpdates.put("/posts/man/jeonnam/" + key, postValues);
-                    break;
-                case "전북" :
-                    childUpdates.put("/posts/man/jeonbuk/" + key, postValues);
-                    break;
-                case "강원" :
-                    childUpdates.put("/posts/man/kangwon/" + key, postValues);
-                    break;
-                case "제주" :
-                    childUpdates.put("/posts/man/jeju/" + key, postValues);
-                    break;
-                case "충북" :
-                    childUpdates.put("/posts/man/chungbuk/" + key, postValues);
-                    break;
-                case "충남" :
-                    childUpdates.put("/posts/man/chungnam/" + key, postValues);
-                    break;
-                default:
-                    break;
-            }
+            childUpdates.put("/posts/man/" + "/"+local+"/"+key, postValues);
         }
 
         dbRef.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {

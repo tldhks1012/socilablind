@@ -1,9 +1,10 @@
 package com.kkkhhh.socialblinddate.Activity;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
+
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +13,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.kkkhhh.socialblinddate.Fragment.FirstMainFrg;
 import com.kkkhhh.socialblinddate.Fragment.FourMainFrg;
 import com.kkkhhh.socialblinddate.Fragment.SecondMainFrg;
@@ -23,6 +29,8 @@ private Button userLogOutBtn;
 
     private ImageView actionPublicList,actionMyList,actionMsg,actionProfile;
     private FirebaseAuth mFireAuth= FirebaseAuth.getInstance();
+    private FirebaseDatabase firebaseDatabase=FirebaseDatabase.getInstance();
+
     Fragment mFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +55,7 @@ private Button userLogOutBtn;
         mFragment = new FirstMainFrg();
 
         actionPublicList.setImageResource(R.drawable.ic_action_list_public_yellow);
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_place,mFragment);
         fragmentTransaction.commit();
@@ -108,7 +116,7 @@ private Button userLogOutBtn;
            }
            default:
     }
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_place,mFragment);
         fragmentTransaction.commit();
