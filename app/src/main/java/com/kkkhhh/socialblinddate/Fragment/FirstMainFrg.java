@@ -78,7 +78,8 @@ public class FirstMainFrg extends Fragment {
     private RecyclerView recyclerView;
     private LinearLayoutManager mManager;
     private DatabaseReference mDatabase;
-    private DatabaseReference mPostRef;
+    private DatabaseReference manReference;
+    private DatabaseReference womanReference;
     /*    private ParallaxRecyclerAdapter<Post> mAdapter;*/
     private PostAdapter mAdapter;
     private List<Post> postList;
@@ -93,8 +94,8 @@ public class FirstMainFrg extends Fragment {
     private FirebaseAuth fireAuth = FirebaseAuth.getInstance();
 
     private String uID, genderCheck;
-    private FrameLayout manBtn, womenBtn;
-    private TextView manText, womenText;
+    private FrameLayout manBtn, womanBtn;
+    private TextView manText, womanText,noPost;
 
 
     public FirstMainFrg() {
@@ -167,23 +168,30 @@ public class FirstMainFrg extends Fragment {
         //필터 이미지 버튼
         filterBtn = (ImageButton) rootView.findViewById(R.id.frg_first_filter_btn);
         //progressView
-        progressView = (ProgressView) rootView.findViewById(R.id.frg_first_progress);
+        progressView = (ProgressView) rootView.findViewById(R.id.progressview);
         mGlideRequestManager = Glide.with(this);
         postList = new ArrayList<Post>();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_recycler_view);
         recyclerView.setHasFixedSize(true);
 
         manBtn = (FrameLayout) rootView.findViewById(R.id.frg_first_man_btn);
-        womenBtn = (FrameLayout) rootView.findViewById(R.id.frg_first_women_btn);
+        womanBtn = (FrameLayout) rootView.findViewById(R.id.frg_first_woman_btn);
 
         manText = (TextView) rootView.findViewById(R.id.frg_first_man_txt);
-        womenText = (TextView) rootView.findViewById(R.id.frg_first_women_txt);
+        womanText = (TextView) rootView.findViewById(R.id.frg_first_woman_txt);
+        noPost=(TextView)rootView.findViewById(R.id.no_post);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
+        womanReference=mDatabase.child("/posts/woman-posts/");
+        manReference=mDatabase.child("/posts/man-posts/");
         uID = fireAuth.getCurrentUser().getUid();
 
      /*   mPostRef.keepSynced(true);*/
+        _initReference();
+        genderBtnClick(manBtn);
+        genderBtnClick(womanBtn);
+    }
+    private void _initReference(){
         mDatabase.child("users").child(uID).child("_uGender").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -191,11 +199,11 @@ public class FirstMainFrg extends Fragment {
 
                 switch (gender) {
                     case "남자":
-                        _initReference(mDatabase.child("/posts/women-posts/"));
-                        womenTextChange();
+                        _initDataBaseReference(womanReference);
+                        womanTextChange();
                         break;
                     case "여자":
-                        _initReference(mDatabase.child("/posts/man-posts/"));
+                        _initDataBaseReference(manReference);
                         manTextChange();
                 }
             }
@@ -205,9 +213,8 @@ public class FirstMainFrg extends Fragment {
 
             }
         });
-        genderBtnClick(manBtn);
-        genderBtnClick(womenBtn);
     }
+
 
 
     private void genderBtnClick(final FrameLayout btn) {
@@ -216,13 +223,15 @@ public class FirstMainFrg extends Fragment {
             public void onClick(View v) {
                 switch (btn.getId()) {
                     case R.id.frg_first_man_btn:
-                        _initReference(mDatabase.child("/posts/man-posts/"));
+                        _initDataBaseReference(manReference);
                         manTextChange();
+                        progressView.setVisibility(View.VISIBLE);
                         break;
 
-                    case R.id.frg_first_women_btn:
-                        _initReference(mDatabase.child("/posts/women-posts/"));
-                        womenTextChange();
+                    case R.id.frg_first_woman_btn:
+                        progressView.setVisibility(View.VISIBLE);
+                        _initDataBaseReference(womanReference);
+                        womanTextChange();
                         break;
                 }
             }
@@ -232,40 +241,46 @@ public class FirstMainFrg extends Fragment {
 
     private void manTextChange() {
         genderCheck = "남자";
-        womenText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
-        womenText.setTextColor(Color.GRAY);
+        womanText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+        womanText.setTextColor(Color.GRAY);
         manText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
         manText.setTextColor(Color.BLACK);
     }
 
-    private void womenTextChange() {
+    private void womanTextChange() {
         genderCheck = "여자";
-        womenText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-        womenText.setTextColor(Color.BLACK);
+        womanText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+        womanText.setTextColor(Color.BLACK);
         manText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
         manText.setTextColor(Color.GRAY);
     }
 
     //초기 레퍼런스 설정
-    private void _initReference(DatabaseReference dbRef) {
-
+    private void _initDataBaseReference(final DatabaseReference dbRef) {
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //초기에 리스트를 초기화
-                postList.clear();
-                //for문을 돌려 리스트 값만큼 추가
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    Post postModel = postSnapshot.getValue(Post.class);
-                    postList.add(postModel);
+                if(dataSnapshot.getValue()==null){
+                    noPost.setVisibility(View.VISIBLE);
+                    progressView.setVisibility(View.INVISIBLE);
+                    recyclerView.setVisibility(View.INVISIBLE);
+                }else {
+                    noPost.setVisibility(View.GONE);
+                    //초기에 리스트를 초기화
+                    postList.clear();
+                    //for문을 돌려 리스트 값만큼 추가
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        Post postModel = postSnapshot.getValue(Post.class);
+                        postList.add(postModel);
+                    }
+                    //PostAdapter 참조
+                    mAdapter = new PostAdapter(postList, getActivity(), dbRef, progressView, recyclerView);
+                    //리스트뷰 애니메이션 효과
+                    AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
+                    alphaAdapter.setDuration(1000);
+                    //RecycleView 어댑터 세팅
+                    recyclerView.setAdapter(alphaAdapter);
                 }
-                //PostAdapter 참조
-                mAdapter = new PostAdapter(postList, getActivity(), mPostRef, progressView, recyclerView);
-                //리스트뷰 애니메이션 효과
-                AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
-                alphaAdapter.setDuration(1000);
-                //RecycleView 어댑터 세팅
-                recyclerView.setAdapter(alphaAdapter);
             }
 
             @Override
@@ -308,8 +323,8 @@ public class FirstMainFrg extends Fragment {
                         manTextChange();
                         filterGender("man", localStr, mDatabase);
                     } else if (genderCheck.equals("여자")) {
-                        womenTextChange();
-                        filterGender("women", localStr, mDatabase);
+                        womanTextChange();
+                        filterGender("woman", localStr, mDatabase);
                     }
                 }
             }
@@ -347,7 +362,7 @@ public class FirstMainFrg extends Fragment {
     }
 
     //setData 값을 받아서 리싸이클뷰에 뿌려주는 메소드
-    private void setDatabaseReference(DatabaseReference databaseReference) {
+    private void setDatabaseReference(final DatabaseReference databaseReference) {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -356,7 +371,7 @@ public class FirstMainFrg extends Fragment {
                     Post postModel = postSnapshot.getValue(Post.class);
                     postList.add(postModel);
                 }
-                mAdapter = new PostAdapter(postList, getActivity(), mPostRef, progressView, recyclerView);
+                mAdapter = new PostAdapter(postList, getActivity(), databaseReference, progressView, recyclerView);
                 AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
                 alphaAdapter.setDuration(1000);
                 recyclerView.setAdapter(alphaAdapter);
@@ -370,11 +385,11 @@ public class FirstMainFrg extends Fragment {
         });
     }
 
-    private void filterGender(String gender, String local, DatabaseReference dbRef) {
+    private void filterGender(String gender, String local, DatabaseReference databaseReference) {
         DataBaseFiltering dbFilter = new DataBaseFiltering();
         local=dbFilter.changeLocal(local);
-        dbRef = mDatabase.child("/posts/" + gender + "/"+local+"/");
-        setDatabaseReference(dbRef);
+        databaseReference = databaseReference.child("/posts/" + gender + "/"+local+"/");
+        setDatabaseReference(databaseReference);
     }
 
 }

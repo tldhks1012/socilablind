@@ -85,17 +85,9 @@ if (holder instanceof PostHolder) {
                        crossFade(1000).into(((PostHolder) holder).cardUserImg);
                 progressView.setVisibility(View.INVISIBLE);
                 recyclerView.setVisibility(View.VISIBLE);
+
                 String stringDate = post.stampTime;
-                java.text.SimpleDateFormat format = new java.text.SimpleDateFormat(
-                        "yyyy-MM-dd HH:mm:ss");
-                try {
-                    Date date = format.parse(stringDate);
-                    TimeMaximum maximum = new TimeMaximum();
-                    String getDate = maximum.formatTimeString(date);
-                    ((PostHolder) holder).cardTimeStamp.setText(getDate);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                _nowTime(stringDate,((PostHolder)holder));
                 ((PostHolder) holder).goToPost.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -107,10 +99,8 @@ if (holder instanceof PostHolder) {
 
                     }
                 });
-
-
-
             }else{
+
                 /*((ViewHolder) holder).cardUserGender.setText(post.gender);
                 ((ViewHolder) holder).cardUserAge.setText(post.age);
                 ((ViewHolder) holder).cardUserLocal.setText(post.local);
@@ -159,7 +149,6 @@ if (holder instanceof PostHolder) {
         private TextView cardTimeStamp;
         private FrameLayout goToPost;
         private FrameLayout goToProfile;
-
         public PostHolder(View itemView) {
             super(itemView);
             cardUserImg =(ImageView)itemView.findViewById(R.id.card_img);
@@ -174,6 +163,19 @@ if (holder instanceof PostHolder) {
         }
     }
 
+    private void _nowTime(String stringDate,PostHolder holder){
+        java.text.SimpleDateFormat format = new java.text.SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss");
+
+        try {
+            Date date = format.parse(stringDate);
+            TimeMaximum maximum = new TimeMaximum();
+            String getDate = maximum.formatTimeString(date);
+            holder.cardTimeStamp.setText(getDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     ////헤드 뷰

@@ -24,6 +24,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -39,6 +42,7 @@ import com.kkkhhh.socialblinddate.Model.UserImg;
 import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.Model.UserProfile;
 import com.kkkhhh.socialblinddate.R;
+import com.rey.material.widget.ProgressView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,11 +55,11 @@ import java.util.Map;
 
 public class PostWriterAct extends AppCompatActivity {
     private ImageView
-            writer_img1 = null;
+            writeIv = null;
     private boolean
-            writer_img1_check = false;
+            writeIvCheck = false;
     private String
-            writer_img1_str;
+            writeIvStr;
 
     private ArrayList<Boolean> writerImgCheckArray = new ArrayList();
 
@@ -67,7 +71,7 @@ public class PostWriterAct extends AppCompatActivity {
 
     private EditText writerTitle, writerBody;
 
-    private String writerTitleStr, writerBodyStr,userGender,userAge,userLocal,userProfileImg;
+    private String titleStr, bodyStr,userGender,userAge,userLocal,userProfileImg;
 
     private Button uploadButton;
 
@@ -75,7 +79,9 @@ public class PostWriterAct extends AppCompatActivity {
     private StorageReference storageRef;
 
     private FirebaseDatabase mFireDB = FirebaseDatabase.getInstance();
-    private DatabaseReference dbRef = mFireDB.getReference().getRoot();
+    private DatabaseReference dataReference = mFireDB.getReference().getRoot();
+    private DatabaseReference manReference;
+    private DatabaseReference womanReference;
 
     private FirebaseAuth fireAuth = FirebaseAuth.getInstance();
 
@@ -87,9 +93,11 @@ public class PostWriterAct extends AppCompatActivity {
 
     private String updateLocal,updateGender,updatePostKey,updateImg1;
 
-    String key ;
+    String _getKey ;
 
     private static final int PICK_FROM_GALLERY = 0;
+
+    private ProgressView progressView;
 
 
     @Override
@@ -107,13 +115,19 @@ public class PostWriterAct extends AppCompatActivity {
         writerTitle = (EditText) findViewById(R.id.writer_title);
         writerBody = (EditText) findViewById(R.id.writer_body);
 
-        writer_img1 = (ImageView) findViewById(R.id.writer_img1);
-        writerImgArray.add(writer_img1);
+        writeIv = (ImageView) findViewById(R.id.writer_img1);
 
-        writerImgCheckArray.add(writer_img1_check);
+        progressView=(ProgressView)findViewById(R.id.progressview);
+
+        writerImgArray.add(writeIv);
+
+        writerImgCheckArray.add(writeIvCheck);
+
+        manReference=dataReference.child("/posts/man-posts/");
+        womanReference=dataReference.child("/posts/woman-posts/");
 
 
-        dbRef.child("users").child(getUid).addListenerForSingleValueEvent(new ValueEventListener() {
+        dataReference.child("users").child(getUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot!=null) {
@@ -145,80 +159,95 @@ public class PostWriterAct extends AppCompatActivity {
         receiveIntent();
 
         imgInit();
+        _upload();
 
+
+    }
+
+    private void _upload(){
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                writerTitleStr = writerTitle.getText().toString();
-                writerBodyStr = writerBody.getText().toString();
+                titleStr = writerTitle.getText().toString();
+                bodyStr = writerBody.getText().toString();
 
-                if (TextUtils.isEmpty(writerTitleStr)) {
+                if (TextUtils.isEmpty(titleStr)) {
                     Toast.makeText(PostWriterAct.this, "제목을 입력해주세요.", Toast.LENGTH_SHORT).show();
-                } else if (TextUtils.isEmpty(writerBodyStr)) {
+                } else if (TextUtils.isEmpty(bodyStr)) {
                     Toast.makeText(PostWriterAct.this, "내용을 입력해주세요.", Toast.LENGTH_SHORT).show();
                 } else {
                     uploadButtonClick();
                 }
             }
         });
-
     }
 
+    //수정으로 들어올때
     private void receiveIntent(){
+
         Intent intent =getIntent();
         if(intent.getStringExtra("local")!=null){
+            progressView.setVisibility(View.VISIBLE);
             updateLocal=intent.getStringExtra("local");
             updateGender=intent.getStringExtra("gender");
             updatePostKey=intent.getStringExtra("postKey");
 
             if(updateGender.equals("남자")){
-                dbRef.child("posts").child("man-posts").child(updatePostKey).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot!=null){
-                            Post post=dataSnapshot.getValue(Post.class);
-                            writerTitle.setText(post.title);
-                            writerBody.setText(post.body);
-                            if(!post.img1.equals("@null")) {
-                                Glide.with(PostWriterAct.this).using(new FirebaseImageLoader()).load(storageRef.child(post.img1)).centerCrop().into(writer_img1);
-                                writerImgCheckArray.set(0, true);
-                                updateImg1=post.img1;
-                            }
-                        }
-                        uploadButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                writerTitleStr = writerTitle.getText().toString();
-                                writerBodyStr = writerBody.getText().toString();
-
-                                if (TextUtils.isEmpty(writerTitleStr)) {
-                                    Toast.makeText(PostWriterAct.this, "제목을 입력해주세요.", Toast.LENGTH_SHORT).show();
-                                } else if (TextUtils.isEmpty(writerBodyStr)) {
-                                    Toast.makeText(PostWriterAct.this, "내용을 입력해주세요.", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    uploadButtonClick();
-                                }
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                receiveIntentReference(manReference);
+            }else if(updateGender.equals("여자")){
+                receiveIntentReference(womanReference);
             }
         }
     }
 
-    //////이미지 버튼 클릭
+    private void receiveIntentReference(DatabaseReference databaseReference){
+        databaseReference.child(updatePostKey).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot!=null){
+                    Post post=dataSnapshot.getValue(Post.class);
+                    writerTitle.setText(post.title);
+                    writerBody.setText(post.body);
+
+                    if(!post.img1.equals("@null")) {
+                        Glide.with(PostWriterAct.this).using(new FirebaseImageLoader()).load(storageRef.child(post.img1)).centerCrop().listener(new RequestListener<StorageReference, GlideDrawable>() {
+                            @Override
+                            public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                progressView.setVisibility(View.INVISIBLE);
+                                return false;
+                            }
+                            @Override
+                            public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                progressView.setVisibility(View.INVISIBLE);
+                                return false;
+                            }
+                        }).into(writeIv);
+                        writerImgCheckArray.set(0, true);
+                        updateImg1=post.img1;
+                    }else{
+                        writerImgCheckArray.set(0, false);
+                        updateImg1=post.img1;
+                        progressView.setVisibility(View.INVISIBLE);
+                    }
+                }
+                _upload();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    //이미지 버튼 클릭
     private void imgInit() {
         for (int index = 0; index < writerImgArray.size(); index++) {
             imgSelect(writerImgArray.get(index), index);
         }
     }
 
-    //////버튼 클릭 후 이벤트 [사진이 없을시에는 갤러리만 있을시에는 갤러리, 삭제]
+    //버튼 클릭 후 이벤트 [사진이 없을시에는 갤러리만 있을시에는 갤러리, 삭제]
     private void imgSelect(final ImageView imageView, final int position) {
 
         imageView.setOnClickListener(new View.OnClickListener() {
@@ -235,14 +264,16 @@ public class PostWriterAct extends AppCompatActivity {
         });
     }
 
-    //////앨범을 가기 위한 Intent 값
+
+    //앨범을 가기 위한 Intent 값
     private void doTakeAlbumAction() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
         startActivityForResult(intent, PICK_FROM_GALLERY);
     }
-    //////앨범 사진 받아 온 후 Result 값
 
+
+    //앨범 사진 받아 온 후 Result 값
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -286,6 +317,7 @@ public class PostWriterAct extends AppCompatActivity {
         }
     }
 
+    //사진
     public Bitmap rotate(Bitmap bitmap, int degrees) {
         if (degrees != 0 && bitmap != null) {
             Matrix m = new Matrix();
@@ -318,7 +350,7 @@ public class PostWriterAct extends AppCompatActivity {
         return 0;
     }
 
-    //////실제 이미지 파일 경로
+    //실제 이미지 파일 경로
     private String getRealPathFromURI(Uri contentUri) {
         String[] proj = {MediaStore.Images.Media.DATA};
 
@@ -330,7 +362,7 @@ public class PostWriterAct extends AppCompatActivity {
         return cursor.getString(column_index);
     }
 
-    //////사진이 있을시에 나오는 Dialog
+    //사진이 있을시에 나오는 Dialog
     private void selectImg(final int position) {
         final CharSequence[] items = {"삭제"};
 
@@ -340,9 +372,16 @@ public class PostWriterAct extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int index) {
                 switch (index) {
                     case 0: {
-                        writerImgArray.get(position).setImageBitmap(null);
-                        writerImgCheckArray.set(position, false);
-                        fileArray[intentCheck] = null;
+                        if(!updateImg1.equals("@null")){
+                            updateImg1="@null";
+                            writerImgArray.get(position).setImageBitmap(null);
+                            writerImgCheckArray.set(position, false);
+                            fileArray[intentCheck] = null;
+                        }else {
+                            writerImgArray.get(position).setImageBitmap(null);
+                            writerImgCheckArray.set(position, false);
+                            fileArray[intentCheck] = null;
+                        }
                         break;
                     }
                 }
@@ -355,7 +394,7 @@ public class PostWriterAct extends AppCompatActivity {
 
     }
 
-    //////업로드 버튼
+    //업로드 버튼
     private void uploadButtonClick() {
 
         progressDialog.setMessage("포스트를 저장 중 입니다.");
@@ -379,33 +418,33 @@ public class PostWriterAct extends AppCompatActivity {
     //이미지 ArrayList에 내용이 있으면 입력 없으면 @null로 변환
     private void writerImgWriter(List imgArray) {
         if (imgArray.get(0) != null) {
-            writer_img1_str = imgArray.get(0).toString();
+            writeIvStr = imgArray.get(0).toString();
         } else {
-            writer_img1_str = "@null";
+            writeIvStr = "@null";
         }
         uploadStorage();
     }
 
     //이미지 파일을 전송
     private void uploadStorage() {
-        key = dbRef.child("posts").push().getKey();
-        if (writer_img1_str == "@null") {
+        _getKey = dataReference.child("posts").push().getKey();
+        if (writeIvStr == "@null") {
             storageRef.child(getUid).child("img1").delete();
         } else {
-            byte[] file = Base64.decode(writer_img1_str, 0);
-            StorageReference img1_Ref = storageRef.child("post").child(key).child(getUid).child("img1");
+            byte[] file = Base64.decode(writeIvStr, 0);
+            StorageReference img1_Ref = storageRef.child("post").child(_getKey).child(getUid).child("img1");
             img1_Ref.putBytes(file);
-            writer_img1_str = img1_Ref.getPath();
+            writeIvStr = img1_Ref.getPath();
         }
 
-        if(updateLocal!=null){
-            if(!updateImg1.equals("@null")){
-                writeNewPost(getUid, userProfileImg, writerTitleStr, writerBodyStr, updateImg1, userLocal, userGender, userAge,updatePostKey);
+        if(updateImg1!=null){
+            if(!updateImg1.equals("@null")&&(writerImgCheckArray.get(0)==true)){
+                writeNewPost(getUid, userProfileImg, titleStr, bodyStr, updateImg1, userLocal, userGender, userAge,updatePostKey);
             }else{
-                writeNewPost(getUid, userProfileImg, writerTitleStr, writerBodyStr, writer_img1_str, userLocal, userGender, userAge,updatePostKey);
+                writeNewPost(getUid, userProfileImg, titleStr, bodyStr, writeIvStr, userLocal, userGender, userAge,updatePostKey);
             }
         }else {
-            writeNewPost(getUid, userProfileImg, writerTitleStr, writerBodyStr, writer_img1_str, userLocal, userGender, userAge,key);
+            writeNewPost(getUid, userProfileImg, titleStr, bodyStr, writeIvStr, userLocal, userGender, userAge,_getKey);
         }
     }
 
@@ -424,14 +463,14 @@ public class PostWriterAct extends AppCompatActivity {
         DataBaseFiltering dbFilter = new DataBaseFiltering();
         local=dbFilter.changeLocal(local);
         if(gender.equals("여자")) {
-            childUpdates.put("/posts/women-posts/" + key, postValues);
-            childUpdates.put("/posts/women/" + "/"+local+"/"+key, postValues);
+            childUpdates.put("/posts/woman-posts/" + key, postValues);
+            childUpdates.put("/posts/woman/" + "/"+local+"/"+key, postValues);
         }else if(gender.equals("남자")){
             childUpdates.put("/posts/man-posts/" + key, postValues);
             childUpdates.put("/posts/man/" + "/"+local+"/"+key, postValues);
         }
 
-        dbRef.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
+        dataReference.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError != null) {
