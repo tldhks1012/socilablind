@@ -40,6 +40,8 @@
         </activity>
         <activity android:name=".Activity.DetailPostAct">
         </activity>
+        <activity android:name=".Activity.ChatAct">
+        </activity>
     </application>
 
 </manifest>

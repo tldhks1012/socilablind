@@ -38,9 +38,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kkkhhh.socialblinddate.Etc.DataBaseFiltering;
 import com.kkkhhh.socialblinddate.Model.Post;
-import com.kkkhhh.socialblinddate.Model.UserImg;
 import com.kkkhhh.socialblinddate.Model.UserModel;
-import com.kkkhhh.socialblinddate.Model.UserProfile;
 import com.kkkhhh.socialblinddate.R;
 import com.rey.material.widget.ProgressView;
 
@@ -75,8 +73,7 @@ public class PostWriterAct extends AppCompatActivity {
 
     private Button uploadButton;
 
-    private FirebaseStorage storage = FirebaseStorage.getInstance();
-    private StorageReference storageRef;
+    private StorageReference storageRef =FirebaseStorage.getInstance().getReference();
 
     private FirebaseDatabase mFireDB = FirebaseDatabase.getInstance();
     private DatabaseReference dataReference = mFireDB.getReference().getRoot();
@@ -107,61 +104,69 @@ public class PostWriterAct extends AppCompatActivity {
         init();
 
     }
-
+//UI 초기 설정
     private void init() {
-
-
-
+        //제목 에디트 텍스트
         writerTitle = (EditText) findViewById(R.id.writer_title);
+        //내용 에디트 텍스트
         writerBody = (EditText) findViewById(R.id.writer_body);
-
+        //사진 이미지뷰
         writeIv = (ImageView) findViewById(R.id.writer_img1);
-
+        //프로그래스뷰
         progressView=(ProgressView)findViewById(R.id.progressview);
-
+       //업로드 버튼
+        uploadButton = (Button) findViewById(R.id.writer_img_upload_btn);
+        //이미지뷰 리스트 이미지 추가
         writerImgArray.add(writeIv);
 
+        //체크리스트에 체크 추가
         writerImgCheckArray.add(writeIvCheck);
 
+        //남자 DB레퍼런스
         manReference=dataReference.child("/posts/man-posts/");
+        //여자 DB레퍼런스
         womanReference=dataReference.child("/posts/woman-posts/");
 
+        //유저 값 들고오기
+        getUserValue();
 
+        //프로그래스 참조
+        progressDialog = new ProgressDialog(PostWriterAct.this);
+
+        //수정 받아 올때
+        receiveIntent();
+
+        //사진등록
+        imgInit();
+
+        //업로드 버튼
+        _upload();
+
+
+    }
+
+    private void getUserValue() {
         dataReference.child("users").child(getUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot!=null) {
+                if (dataSnapshot != null) {
                     UserModel userModel = dataSnapshot.getValue(UserModel.class);
-                    userLocal=userModel._uLocal;
-                    userGender=userModel._uGender;
-                    userAge=userModel._uAge;
-                    userProfileImg=userModel._uImage1;
+                    userLocal = userModel._uLocal;
+                    userGender = userModel._uGender;
+                    userAge = userModel._uAge;
+                    userProfileImg = userModel._uImage1;
 
-                }else{
-                    Toast.makeText(PostWriterAct.this,"유저 정보를 불러오는데 실패를 하였습니다.",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(PostWriterAct.this, "유저 정보를 불러오는데 실패를 하였습니다.", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d("databaseError",databaseError.toString());
+                Log.d("databaseError", databaseError.toString());
             }
         });
-
-        progressDialog = new ProgressDialog(PostWriterAct.this);
-
-        storageRef = storage.getReference();
-        storageRef = storageRef.getRoot();
-
-        uploadButton = (Button) findViewById(R.id.writer_img_upload_btn);
-
-        receiveIntent();
-
-        imgInit();
-        _upload();
-
-
     }
 
     private void _upload(){
@@ -200,6 +205,7 @@ public class PostWriterAct extends AppCompatActivity {
         }
     }
 
+    //수정으로 들어 온 후 데이터베이스 레퍼런스
     private void receiveIntentReference(DatabaseReference databaseReference){
         databaseReference.child(updatePostKey).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -208,7 +214,6 @@ public class PostWriterAct extends AppCompatActivity {
                     Post post=dataSnapshot.getValue(Post.class);
                     writerTitle.setText(post.title);
                     writerBody.setText(post.body);
-
                     if(!post.img1.equals("@null")) {
                         Glide.with(PostWriterAct.this).using(new FirebaseImageLoader()).load(storageRef.child(post.img1)).centerCrop().listener(new RequestListener<StorageReference, GlideDrawable>() {
                             @Override
@@ -372,11 +377,13 @@ public class PostWriterAct extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int index) {
                 switch (index) {
                     case 0: {
-                        if(!updateImg1.equals("@null")){
-                            updateImg1="@null";
-                            writerImgArray.get(position).setImageBitmap(null);
-                            writerImgCheckArray.set(position, false);
-                            fileArray[intentCheck] = null;
+                        if(updateImg1!=null) {
+                            if (!updateImg1.equals("@null")) {
+                                updateImg1 = "@null";
+                                writerImgArray.get(position).setImageBitmap(null);
+                                writerImgCheckArray.set(position, false);
+                                fileArray[intentCheck] = null;
+                            }
                         }else {
                             writerImgArray.get(position).setImageBitmap(null);
                             writerImgCheckArray.set(position, false);
@@ -451,23 +458,23 @@ public class PostWriterAct extends AppCompatActivity {
 
 
     private void writeNewPost(String userId,String userImg, String title, String body, String img1,String local,String gender,String age,String key) {
+
+
         long now = System.currentTimeMillis();
         Date date = new Date(now);
         SimpleDateFormat CurDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String strCurDate = CurDateFormat.format(date);
+
+
         Post post = new Post(userId,userImg, title, body, img1,local,gender,age,strCurDate,key);
         Map<String, Object> postValues = post.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
 
         childUpdates.put("/user-posts/" + userId + "/" + key, postValues);
-        DataBaseFiltering dbFilter = new DataBaseFiltering();
-        local=dbFilter.changeLocal(local);
         if(gender.equals("여자")) {
             childUpdates.put("/posts/woman-posts/" + key, postValues);
-            childUpdates.put("/posts/woman/" + "/"+local+"/"+key, postValues);
         }else if(gender.equals("남자")){
             childUpdates.put("/posts/man-posts/" + key, postValues);
-            childUpdates.put("/posts/man/" + "/"+local+"/"+key, postValues);
         }
 
         dataReference.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {

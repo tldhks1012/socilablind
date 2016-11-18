@@ -29,8 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.kkkhhh.socialblinddate.Model.UserImg;
-import com.kkkhhh.socialblinddate.Model.UserModel;
+
 import com.kkkhhh.socialblinddate.R;
 
 import java.io.ByteArrayOutputStream;

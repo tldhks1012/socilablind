@@ -321,10 +321,10 @@ public class FirstMainFrg extends Fragment {
                 } else {
                     if (genderCheck.equals("남자")) {
                         manTextChange();
-                        filterGender("man", localStr, mDatabase);
+                        filterGender(localStr, manReference);
                     } else if (genderCheck.equals("여자")) {
                         womanTextChange();
-                        filterGender("woman", localStr, mDatabase);
+                        filterGender(localStr, womanReference);
                     }
                 }
             }
@@ -362,14 +362,16 @@ public class FirstMainFrg extends Fragment {
     }
 
     //setData 값을 받아서 리싸이클뷰에 뿌려주는 메소드
-    private void setDatabaseReference(final DatabaseReference databaseReference) {
+    private void setDatabaseReference(final DatabaseReference databaseReference,final String local) {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 postList.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Post postModel = postSnapshot.getValue(Post.class);
-                    postList.add(postModel);
+                    if(postModel.local.equals(local)) {
+                        postList.add(postModel);
+                    }
                 }
                 mAdapter = new PostAdapter(postList, getActivity(), databaseReference, progressView, recyclerView);
                 AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
@@ -385,11 +387,8 @@ public class FirstMainFrg extends Fragment {
         });
     }
 
-    private void filterGender(String gender, String local, DatabaseReference databaseReference) {
-        DataBaseFiltering dbFilter = new DataBaseFiltering();
-        local=dbFilter.changeLocal(local);
-        databaseReference = databaseReference.child("/posts/" + gender + "/"+local+"/");
-        setDatabaseReference(databaseReference);
+    private void filterGender(String local, DatabaseReference databaseReference) {
+        setDatabaseReference(databaseReference,local);
     }
 
 }

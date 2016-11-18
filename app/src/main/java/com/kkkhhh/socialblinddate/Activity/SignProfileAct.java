@@ -16,8 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.kkkhhh.socialblinddate.Model.UserModel;
-import com.kkkhhh.socialblinddate.Model.UserProfile;
+
 import com.kkkhhh.socialblinddate.R;
 
 import java.util.Arrays;

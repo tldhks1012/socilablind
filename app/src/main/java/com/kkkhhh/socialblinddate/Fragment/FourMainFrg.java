@@ -30,11 +30,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kkkhhh.socialblinddate.Etc.CustomBitmapPool;
-import com.kkkhhh.socialblinddate.Model.UserImg;
 import com.kkkhhh.socialblinddate.Model.UserModel;
-import com.kkkhhh.socialblinddate.Model.UserProfile;
 import com.kkkhhh.socialblinddate.R;
-import com.mikhaellopez.circularimageview.CircularImageView;
 import com.rey.material.widget.ProgressView;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;

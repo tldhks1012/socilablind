@@ -28,11 +28,16 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kkkhhh.socialblinddate.Etc.CustomBitmapPool;
 import com.kkkhhh.socialblinddate.Etc.DataBaseFiltering;
+import com.kkkhhh.socialblinddate.Model.ChatList;
+import com.kkkhhh.socialblinddate.Model.ChatModel;
 import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.R;
 
 import android.widget.LinearLayout;
 import com.rey.material.widget.ProgressView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
@@ -50,6 +55,7 @@ public class DetailPostAct extends AppCompatActivity {
     private ProgressView progressView;
     private FrameLayout goToProfile,goToMessage,deleteBtn,updateBtn;
     private LinearLayout noUidMenu,uIDMenu;
+    private String postUid;
 
 
     @Override
@@ -90,9 +96,11 @@ public class DetailPostAct extends AppCompatActivity {
         uIDMenu=(LinearLayout)findViewById(R.id.detail_uid_menu);
         deleteBtn=(FrameLayout)findViewById(R.id.detail_post_delete_btn);
         updateBtn=(FrameLayout)findViewById(R.id.detail_post_change_btn);
+        goToMessage=(FrameLayout)findViewById(R.id.go_to_message);
         getData();
         _deletePost(deleteBtn);
         _updatePost(updateBtn);
+        sendMessage();
     }
 
     private void getData() {
@@ -111,8 +119,8 @@ public class DetailPostAct extends AppCompatActivity {
                     Post post = dataSnapshot.getValue(Post.class);
                     String userID=firebaseAuth.getCurrentUser().getUid().toString();
 
-
-                    if(post.uid.equals(userID)){
+                    postUid=post.uid;
+                    if(postUid.equals(userID)){
                         noUidMenu.setVisibility(View.GONE);
                         uIDMenu.setVisibility(View.VISIBLE);
                     }else{
@@ -213,7 +221,6 @@ public class DetailPostAct extends AppCompatActivity {
 
     private void deletePost(String gender, String local) {
         databaseRef.child("posts").child(gender + "-posts").child(postKey).removeValue();
-        databaseRef.child("posts").child(gender).child(local).child(postKey).removeValue();
         databaseRef.child("user-posts").child(firebaseAuth.getCurrentUser().getUid()).child(postKey).removeValue();
         if (!detailImgStr.equals("@null")) {
             storageReference.child(detailImgStr).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -224,6 +231,28 @@ public class DetailPostAct extends AppCompatActivity {
             });
         }
         finish();
+    }
+
+    private void sendMessage(){
+        goToMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(DetailPostAct.this,ChatAct.class);
+                String chatKey=databaseRef.child("message").push().getKey();
+                putChatList(chatKey);
+                intent.putExtra("chatKey",chatKey);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void putChatList(String chatKey){
+        String userID=firebaseAuth.getCurrentUser().getUid();
+        ChatList chatList=new ChatList(chatKey,postUid,userID);
+       databaseRef.child("message").child(chatKey).setValue(chatList);
+
+        databaseRef.child("users").child(userID).child("chatList").setValue(chatKey);
+        databaseRef.child("users").child(postUid).child("chatList").setValue(chatKey);
     }
 }
 
