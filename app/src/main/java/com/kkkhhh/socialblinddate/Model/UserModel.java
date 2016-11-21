@@ -23,6 +23,7 @@ public class UserModel  {
     public String _uImage4;
     public String _uImage5;
     public String _uImage6;
+    public int _uCoin;
 
     public UserModel(){
 
@@ -32,22 +33,5 @@ public class UserModel  {
         this._uEmail = _uEmail;
         this._uUpdateData=_uUpdateData;
     }
-
-    public UserModel(String _uNickname, String _uAge, String _uLocal, String _uGender) {
-        this._uNickname = _uNickname;
-        this._uAge = _uAge;
-        this._uLocal = _uLocal;
-        this._uGender = _uGender;
-    }
-
-    public UserModel(String _uImage1, String _uImage2, String _uImage3, String _uImage4, String _uImage5, String _uImage6) {
-        this._uImage1 = _uImage1;
-        this._uImage2 = _uImage2;
-        this._uImage3 = _uImage3;
-        this._uImage4 = _uImage4;
-        this._uImage5 = _uImage5;
-        this._uImage6 = _uImage6;
-    }
-
 
 }

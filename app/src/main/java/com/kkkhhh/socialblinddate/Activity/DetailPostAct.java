@@ -2,6 +2,7 @@ package com.kkkhhh.socialblinddate.Activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -28,15 +29,20 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kkkhhh.socialblinddate.Etc.CustomBitmapPool;
 import com.kkkhhh.socialblinddate.Etc.DataBaseFiltering;
+import com.kkkhhh.socialblinddate.Etc.UserValue;
 import com.kkkhhh.socialblinddate.Model.ChatList;
 import com.kkkhhh.socialblinddate.Model.ChatModel;
 import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.R;
 
 import android.widget.LinearLayout;
+import android.widget.Toast;
+
 import com.rey.material.widget.ProgressView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
@@ -50,12 +56,13 @@ public class DetailPostAct extends AppCompatActivity {
     private DatabaseReference databaseRef = firebaseDatabase.getReference().getRoot();
     private DatabaseReference manReference;
     private DatabaseReference womanReference;
-    private String gender, postKey, local ,detailImgStr;
+    private String gender, postKey, local, detailImgStr;
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
     private ProgressView progressView;
-    private FrameLayout goToProfile,goToMessage,deleteBtn,updateBtn;
-    private LinearLayout noUidMenu,uIDMenu;
+    private FrameLayout goToProfile, goToMessage, deleteBtn, updateBtn;
+    private LinearLayout noUidMenu, uIDMenu;
     private String postUid;
+
 
 
     @Override
@@ -66,16 +73,16 @@ public class DetailPostAct extends AppCompatActivity {
         Intent intent = getIntent();
         gender = intent.getStringExtra("gender");
         postKey = intent.getStringExtra("postKey");
-        local=intent.getStringExtra("local");
-        DataBaseFiltering dataBaseFiltering=new DataBaseFiltering();
-        local=dataBaseFiltering.changeLocal(local);
+        local = intent.getStringExtra("local");
+        DataBaseFiltering dataBaseFiltering = new DataBaseFiltering();
+        local = dataBaseFiltering.changeLocal(local);
         manReference = databaseRef.child("/posts/man-posts/");
         womanReference = databaseRef.child("/posts/woman-posts/");
         init();
     }
 
 
-    public void onStart(){
+    public void onStart() {
         super.onStart();
         progressView.setVisibility(View.VISIBLE);
         init();
@@ -89,14 +96,14 @@ public class DetailPostAct extends AppCompatActivity {
         profileIv = (ImageView) findViewById(R.id.detail_profile_img);
         detailImgIv = (ImageView) findViewById(R.id.detail_post_img);
         noImgTv = (TextView) findViewById(R.id.detail_no_img);
-        progressView=(ProgressView)findViewById(R.id.detail_image_progress);
-        goToProfile=(FrameLayout)findViewById(R.id.go_to_profile);
-        goToMessage=(FrameLayout)findViewById(R.id.go_to_message);
-        noUidMenu = (LinearLayout)findViewById(R.id.detail_no_uid_menu);
-        uIDMenu=(LinearLayout)findViewById(R.id.detail_uid_menu);
-        deleteBtn=(FrameLayout)findViewById(R.id.detail_post_delete_btn);
-        updateBtn=(FrameLayout)findViewById(R.id.detail_post_change_btn);
-        goToMessage=(FrameLayout)findViewById(R.id.go_to_message);
+        progressView = (ProgressView) findViewById(R.id.detail_image_progress);
+        goToProfile = (FrameLayout) findViewById(R.id.go_to_profile);
+        goToMessage = (FrameLayout) findViewById(R.id.go_to_message);
+        noUidMenu = (LinearLayout) findViewById(R.id.detail_no_uid_menu);
+        uIDMenu = (LinearLayout) findViewById(R.id.detail_uid_menu);
+        deleteBtn = (FrameLayout) findViewById(R.id.detail_post_delete_btn);
+        updateBtn = (FrameLayout) findViewById(R.id.detail_post_change_btn);
+        goToMessage = (FrameLayout) findViewById(R.id.go_to_message);
         getData();
         _deletePost(deleteBtn);
         _updatePost(updateBtn);
@@ -111,19 +118,19 @@ public class DetailPostAct extends AppCompatActivity {
         }
     }
 
-    private void setDataReference(DatabaseReference dataReference){
+    private void setDataReference(DatabaseReference dataReference) {
         dataReference.child(postKey).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot!=null) {
+                if (dataSnapshot != null) {
                     Post post = dataSnapshot.getValue(Post.class);
-                    String userID=firebaseAuth.getCurrentUser().getUid().toString();
+                    String userID = firebaseAuth.getCurrentUser().getUid().toString();
 
-                    postUid=post.uid;
-                    if(postUid.equals(userID)){
+                    postUid = post.uid;
+                    if (postUid.equals(userID)) {
                         noUidMenu.setVisibility(View.GONE);
                         uIDMenu.setVisibility(View.VISIBLE);
-                    }else{
+                    } else {
                         noUidMenu.setVisibility(View.VISIBLE);
                         uIDMenu.setVisibility(View.GONE);
                     }
@@ -136,7 +143,7 @@ public class DetailPostAct extends AppCompatActivity {
                     ageTv.setText(post.age);
                     genderTv.setText(post.gender);
                     localTv.setText(post.local);
-                    detailImgStr=post.img1;
+                    detailImgStr = post.img1;
 
                     if (post.img1.equals("@null")) {
                         noImgTv.setVisibility(View.VISIBLE);
@@ -167,21 +174,21 @@ public class DetailPostAct extends AppCompatActivity {
     }
 
 
-    private void _updatePost(FrameLayout frameLayout){
+    private void _updatePost(FrameLayout frameLayout) {
         frameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(DetailPostAct.this,PostWriterAct.class);
-                intent.putExtra("gender",gender);
-                intent.putExtra("local",local);
-                intent.putExtra("postKey",postKey);
+                Intent intent = new Intent(DetailPostAct.this, PostWriterAct.class);
+                intent.putExtra("gender", gender);
+                intent.putExtra("local", local);
+                intent.putExtra("postKey", postKey);
                 startActivity(intent);
             }
         });
     }
 
 
-    private void _deletePost(FrameLayout frameLayout){
+    private void _deletePost(FrameLayout frameLayout) {
         frameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,7 +197,7 @@ public class DetailPostAct extends AppCompatActivity {
         });
 
     }
-
+//삭제 다이아로그
     private void dialogYesOrNo() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         // set the title of the Alert Dialog
@@ -201,9 +208,9 @@ public class DetailPostAct extends AppCompatActivity {
 
                     public void onClick(DialogInterface dialog, int id) {
                         if (gender.equals("여자")) {
-                            deletePost("woman",local);
+                            deletePost("woman", local);
                         } else if (gender.equals("남자")) {
-                            deletePost("man",local);
+                            deletePost("man", local);
                         }
                         DetailPostAct.this.finish();
                         dialog.cancel();
@@ -233,26 +240,102 @@ public class DetailPostAct extends AppCompatActivity {
         finish();
     }
 
-    private void sendMessage(){
+    private void sendMessage() {
         goToMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(DetailPostAct.this,ChatAct.class);
-                String chatKey=databaseRef.child("message").push().getKey();
-                putChatList(chatKey);
-                intent.putExtra("chatKey",chatKey);
-                startActivity(intent);
+                dialogSendMessage();
             }
         });
     }
 
-    private void putChatList(String chatKey){
+    /*private void putChatList(String chatKey){
         String userID=firebaseAuth.getCurrentUser().getUid();
         ChatList chatList=new ChatList(chatKey,postUid,userID);
        databaseRef.child("message").child(chatKey).setValue(chatList);
 
         databaseRef.child("users").child(userID).child("chatList").setValue(chatKey);
         databaseRef.child("users").child(postUid).child("chatList").setValue(chatKey);
+    }*/
+
+    private void dialogSendMessage() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        // set the title of the Alert Dialog
+        alertDialogBuilder
+                .setCancelable(false)
+                .setMessage("정말 삭제하시겠습니까 ?")
+                .setPositiveButton("네", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int id) {
+                        final String userID = firebaseAuth.getCurrentUser().getUid();
+                        SharedPreferences preferences = getSharedPreferences(UserValue.SHARED_NAME, MODE_PRIVATE);
+                        final SharedPreferences.Editor editor = preferences.edit();
+                        final int uCoin = preferences.getInt(UserValue.USER_COIN, 0);
+
+                        if (uCoin > 300) {
+                            databaseRef.child("user-chatList").child(userID).addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.getValue() != null) {
+                                        for (DataSnapshot chatListSnapShot : dataSnapshot.getChildren()) {
+                                            ChatList chatListValue = chatListSnapShot.getValue(ChatList.class);
+                                            if (chatListValue.partnerID.equals(postUid)) {
+                                                Toast.makeText(getApplicationContext(), "개설된 채팅방이 있습니다", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                messageUpload(userID, editor, uCoin);
+                                            }
+                                        }
+                                    } else {
+                                        messageUpload(userID, editor, uCoin);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                   Log.d("databaseError",databaseError.getMessage());
+                                }
+                            });
+                        } else {
+                            Toast.makeText(getApplicationContext(),"코인이 부족합니다",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+
+                .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    private void messageUpload(final String userID, final SharedPreferences.Editor editor, final int uCoin) {
+        String chatKey = databaseRef.child("message").push().getKey();
+        ChatList chatListUser = new ChatList(chatKey, postUid, userID);
+        ChatList chatListPartner = new ChatList(chatKey, userID, postUid);
+        Map<String, Object> chatListUserValues = chatListUser.toMap();
+        Map<String, Object> chatListPartnerValues = chatListPartner.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+
+        childUpdates.put("/user-chatList/" + postUid + "/" + chatKey, chatListPartnerValues);
+        childUpdates.put("/user-chatList/" + userID + "/" + chatKey, chatListUserValues);
+        childUpdates.put("/message/" + chatKey, chatListUserValues);
+        databaseRef.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if (databaseError != null) {
+                    Log.d("dataError", databaseError.toString());
+                } else {
+                    int userCoin;
+                    userCoin = uCoin - 300;
+                    editor.putInt(UserValue.USER_COIN, userCoin);
+                    editor.commit();
+                    databaseRef.child("users").child(userID).child("_uCoin").setValue(userCoin);
+                    finish();
+                }
+            }
+        });
     }
 }
 

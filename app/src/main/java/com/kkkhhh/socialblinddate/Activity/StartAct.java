@@ -2,8 +2,10 @@ package com.kkkhhh.socialblinddate.Activity;
 
 import android.content.Intent;
 
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -13,6 +15,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.kkkhhh.socialblinddate.Etc.UserValue;
+import com.kkkhhh.socialblinddate.Fcm.MyFirebaseInstanceIDService;
+import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
 
 public class StartAct extends AppCompatActivity {
@@ -29,41 +35,17 @@ public class StartAct extends AppCompatActivity {
 
         final FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
-            String uid = user.getUid().toString();
-            databaseReference.child("users").child(uid).child("check").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    int value = dataSnapshot.getValue(Integer.class);
-                    if (value == 1) {
-                        Intent intent = new Intent(StartAct.this, SignProfileAct.class);
-                        startActivity(intent);
-                        finish();
-                    } else if (value == 2) {
-                        Intent intent = new Intent(StartAct.this, SignImageAct.class);
-                        startActivity(intent);
-                        finish();
-                    } else if (value == 3) {
-                        Intent intent = new Intent(StartAct.this, MainAct.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-
-
-        } else {
+            Intent intent = new Intent(StartAct.this, MainAct.class);
+            startActivity(intent);
+            finish();
+        }else {
             Intent intent = new Intent(StartAct.this, WelcomeAct.class);
             startActivity(intent);
             finish();
         }
-
-
     }
+
+
 }
 
 

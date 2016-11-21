@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,6 +38,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kkkhhh.socialblinddate.Etc.DataBaseFiltering;
+import com.kkkhhh.socialblinddate.Etc.UserValue;
 import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
@@ -146,27 +148,11 @@ public class PostWriterAct extends AppCompatActivity {
     }
 
     private void getUserValue() {
-        dataReference.child("users").child(getUid).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot != null) {
-                    UserModel userModel = dataSnapshot.getValue(UserModel.class);
-                    userLocal = userModel._uLocal;
-                    userGender = userModel._uGender;
-                    userAge = userModel._uAge;
-                    userProfileImg = userModel._uImage1;
-
-                } else {
-                    Toast.makeText(PostWriterAct.this, "유저 정보를 불러오는데 실패를 하였습니다.", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d("databaseError", databaseError.toString());
-            }
-        });
+                   SharedPreferences preferences= getSharedPreferences(UserValue.SHARED_NAME,MODE_PRIVATE);
+                    userLocal = preferences.getString(UserValue.USER_LOCAL,null);
+                    userGender = preferences.getString(UserValue.USER_GENDER,null);
+                    userAge = preferences.getString(UserValue.USER_AGE,null);
+                    userProfileImg = preferences.getString(UserValue.USER_IMG1,null);
     }
 
     private void _upload(){

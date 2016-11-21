@@ -399,6 +399,7 @@ if(signImgStrArray.size()>0){
 
         //check 값
         userImgRef.child("check").setValue(3);
+        userImgRef.child("_uCoin").setValue(500);
         userImgRef.child("_uImage1").setValue(sign_img1_str);
         userImgRef.child("_uImage2").setValue(sign_img2_str);
         userImgRef.child("_uImage3").setValue(sign_img3_str);

@@ -15,6 +15,8 @@ public class ChatList {
     public String partnerID;
     public String uID;
 
+
+
     public ChatList() {
 
     }
@@ -23,5 +25,13 @@ public class ChatList {
         this.chatKey=chatKey;
         this.partnerID=partnerID;
         this.uID=uID;
+    }
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("chatKey", chatKey);
+        result.put("partnerID", partnerID);
+        result.put("uID", uID);
+        return result;
     }
 }
