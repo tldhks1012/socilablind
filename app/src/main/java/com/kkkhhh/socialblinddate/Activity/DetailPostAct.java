@@ -311,7 +311,7 @@ public class DetailPostAct extends AppCompatActivity {
     }
 
     private void messageUpload(final String userID, final SharedPreferences.Editor editor, final int uCoin) {
-        String chatKey = databaseRef.child("message").push().getKey();
+        final String chatKey = databaseRef.child("message").push().getKey();
         ChatList chatListUser = new ChatList(chatKey, postUid, userID);
         ChatList chatListPartner = new ChatList(chatKey, userID, postUid);
         Map<String, Object> chatListUserValues = chatListUser.toMap();
@@ -332,6 +332,9 @@ public class DetailPostAct extends AppCompatActivity {
                     editor.putInt(UserValue.USER_COIN, userCoin);
                     editor.commit();
                     databaseRef.child("users").child(userID).child("_uCoin").setValue(userCoin);
+                    Intent intent= new Intent(DetailPostAct.this,ChatAct.class);
+                    intent.putExtra("chatKey",chatKey);
+                    startActivity(intent);
                     finish();
                 }
             }

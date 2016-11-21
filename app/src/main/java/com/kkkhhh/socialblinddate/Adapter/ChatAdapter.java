@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.kkkhhh.socialblinddate.Model.ChatModel;
 import com.kkkhhh.socialblinddate.R;
 
@@ -21,20 +22,32 @@ import java.util.List;
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<ChatModel> chatList;
+    public static final int SENDER = 0;
+    public static final int RECEIVER = 1;
+
 
     public ChatAdapter(List<ChatModel> chatList){
         this.chatList=chatList;
     }
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_post, parent, false);
-        return new ViewHolder(v);
+        if (viewType == 1) {
+
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_item_recieve, parent, false);
+            ViewHolder vh = new ViewHolder(v);
+            return vh;
+        } else {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_item_send, parent, false);
+            ViewHolder vh = new ViewHolder(v);
+            return vh;
+        }
+
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
     final ChatModel chatModel=chatList.get(position);
-        ((ViewHolder)holder).nickName.setText(chatModel.nickName);
+        ((ViewHolder)holder).chatBody.setText(chatModel.body);
     }
 
     @Override
@@ -53,4 +66,16 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             chatBody=(TextView)itemView.findViewById(R.id.chat_body);
         }
     }
+    @Override
+
+    public int getItemViewType(int position) {
+
+        ChatModel chatModel = chatList.get(position);
+        if (chatModel.uID.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+            return SENDER;
+        } else {
+            return RECEIVER;
+        }
+    }
+
 }

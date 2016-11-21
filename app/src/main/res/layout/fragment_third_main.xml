@@ -2,18 +2,44 @@
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             tools:context="com.kkkhhh.socialblinddate.Fragment.ThirdMainFrg">
-
-    <android.support.v7.widget.Toolbar
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             tools:context="com.kkkhhh.socialblinddate.Fragment.SecondMainFrg">
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/colorPrimary">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:text="메세지"
-            android:textColor="@android:color/white"
-            android:textSize="16dp"/>
-    </android.support.v7.widget.Toolbar>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <android.support.v7.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/colorPrimary">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="메세지 목록"
+                android:textColor="@android:color/white"
+                android:textSize="16dp"/>
+        </android.support.v7.widget.Toolbar>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+    <com.rey.material.widget.ProgressView
+        android:id="@+id/progressview"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:pv_autostart="true"
+        app:pv_circular="true"
+        app:pv_progressStyle="@style/Material.Drawable.CircularProgress"
+        app:pv_progressMode="indeterminate"
+        android:layout_gravity="center"/>
+    <TextView
+        android:id="@+id/no_post"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="게시글이 없습니다."
+        android:visibility="invisible"/>
 </FrameLayout>
+
