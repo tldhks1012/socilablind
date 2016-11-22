@@ -37,7 +37,7 @@ public class ThirdMainFrg extends Fragment {
     private DatabaseReference mDatabase;
     private FirebaseAuth fireAuth = FirebaseAuth.getInstance();
     private RecyclerView recyclerView;
-
+    private ProgressView progressView;
     private List<ChatList> chatLists;
     private ChatListAdapter mAdapter;
     private TextView noPost;
@@ -67,6 +67,7 @@ public class ThirdMainFrg extends Fragment {
 
     }
     private void _init(View view){
+        progressView=(ProgressView)view.findViewById(R.id.progressview);
         recyclerView = (RecyclerView) view.findViewById(R.id.rv_recycler_view);
         recyclerView.setHasFixedSize(true);
         mDatabase= FirebaseDatabase.getInstance().getReference();
@@ -80,7 +81,9 @@ public class ThirdMainFrg extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.getValue()==null){
-
+                    noPost.setVisibility(View.VISIBLE);
+                    progressView.setVisibility(View.INVISIBLE);
+                    recyclerView.setVisibility(View.INVISIBLE);
                 }else {
                     noPost.setVisibility(View.INVISIBLE);
                     //초기에 리스트를 초기화
@@ -91,7 +94,7 @@ public class ThirdMainFrg extends Fragment {
                         chatLists.add(chatList);
                     }
                     //PostAdapter 참조
-                    mAdapter = new ChatListAdapter(chatLists,getActivity());
+                    mAdapter = new ChatListAdapter(chatLists,getActivity(),progressView,recyclerView);
                     //리스트뷰 애니메이션 효과
                     AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
                     alphaAdapter.setDuration(1000);
@@ -108,4 +111,5 @@ public class ThirdMainFrg extends Fragment {
             }
         });
     }
+
 }

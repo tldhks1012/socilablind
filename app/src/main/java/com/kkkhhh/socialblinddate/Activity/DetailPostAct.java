@@ -64,7 +64,6 @@ public class DetailPostAct extends AppCompatActivity {
     private String postUid;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -197,7 +196,8 @@ public class DetailPostAct extends AppCompatActivity {
         });
 
     }
-//삭제 다이아로그
+
+    //삭제 다이아로그
     private void dialogYesOrNo() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         // set the title of the Alert Dialog
@@ -273,7 +273,7 @@ public class DetailPostAct extends AppCompatActivity {
                         final int uCoin = preferences.getInt(UserValue.USER_COIN, 0);
 
                         if (uCoin > 300) {
-                            databaseRef.child("user-chatList").child(userID).addValueEventListener(new ValueEventListener() {
+                            databaseRef.child("user-chatList").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.getValue() != null) {
@@ -292,11 +292,11 @@ public class DetailPostAct extends AppCompatActivity {
 
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
-                                   Log.d("databaseError",databaseError.getMessage());
+                                    Log.d("databaseError", databaseError.getMessage());
                                 }
                             });
                         } else {
-                            Toast.makeText(getApplicationContext(),"코인이 부족합니다",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "코인이 부족합니다", Toast.LENGTH_SHORT).show();
                         }
                     }
                 })
@@ -332,8 +332,8 @@ public class DetailPostAct extends AppCompatActivity {
                     editor.putInt(UserValue.USER_COIN, userCoin);
                     editor.commit();
                     databaseRef.child("users").child(userID).child("_uCoin").setValue(userCoin);
-                    Intent intent= new Intent(DetailPostAct.this,ChatAct.class);
-                    intent.putExtra("chatKey",chatKey);
+                    Intent intent = new Intent(DetailPostAct.this, ChatAct.class);
+                    intent.putExtra("chatKey", chatKey);
                     startActivity(intent);
                     finish();
                 }

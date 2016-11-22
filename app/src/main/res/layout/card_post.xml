@@ -73,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="0.3dp"
             android:background="@color/colorGray"/>
-        <LinearLayout
+       <!-- <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -109,6 +109,6 @@
                     android:text="프로필 보기"
                     android:layout_margin="10dp"/>
             </FrameLayout>
-    </LinearLayout>
+    </LinearLayout>-->
     </LinearLayout>
 </android.support.v7.widget.CardView>

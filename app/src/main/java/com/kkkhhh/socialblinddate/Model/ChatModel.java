@@ -13,17 +13,15 @@ import java.util.Map;
 public class ChatModel {
     public String uID;
     public String body;
-    public String nickName;
     public String timeStamp;
 
     public ChatModel(){
 
     }
 
-    public ChatModel(String uID, String body, String nickName, String timeStamp) {
+    public ChatModel(String uID, String body,String timeStamp) {
         this.uID = uID;
         this.body = body;
-        this.nickName = nickName;
         this.timeStamp = timeStamp;
     }
     @Exclude
@@ -31,7 +29,6 @@ public class ChatModel {
         HashMap<String, Object> result = new HashMap<>();
         result.put("uID", uID);
         result.put("body", body);
-        result.put("nickName", nickName);
         result.put("timeStamp", timeStamp);
         return result;
     }

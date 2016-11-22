@@ -2,11 +2,14 @@ package com.kkkhhh.socialblinddate.Fragment;
 
 
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -22,12 +25,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.kkkhhh.socialblinddate.Activity.WelcomeAct;
 import com.kkkhhh.socialblinddate.Etc.CustomBitmapPool;
+import com.kkkhhh.socialblinddate.Etc.UserValue;
 import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
 import com.rey.material.widget.ProgressView;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,11 +46,12 @@ public class FourMainFrg extends Fragment {
     private FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     private StorageReference mStoreRef = firebaseStorage.getReference();
     private ImageView profileImg;
-    private TextView nickName;
+    private TextView nickName,coin;
     private String uID;
     private ProgressView progressView;
     private ScrollView scrollView;
     private RequestManager mGlideRequestManager;
+    private FrameLayout logoutBtn;
 
 
     public FourMainFrg() {
@@ -66,7 +74,9 @@ public class FourMainFrg extends Fragment {
 
         profileImg = (ImageView) view.findViewById(R.id.frg_four_profile_img);
         nickName = (TextView) view.findViewById(R.id.frg_four_nickname);
+        coin=(TextView)view.findViewById(R.id.frg_four_coin);
         progressView = (ProgressView) view.findViewById(R.id.frg_four_progress);
+        logoutBtn=(FrameLayout)view.findViewById(R.id.logout_btn);
         scrollView = (ScrollView) view.findViewById(R.id.frg_four_scroll);
         scrollView.setVisibility(View.GONE);
         uID = mFireBaseAuth.getCurrentUser().getUid();
@@ -79,6 +89,7 @@ public class FourMainFrg extends Fragment {
                     final UserModel userModel = dataSnapshot.getValue(UserModel.class);
                     mGlideRequestManager.using(new FirebaseImageLoader()).load(mStoreRef.child(userModel._uImage1)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).into(profileImg);
                     nickName.setText(userModel._uNickname);
+                    coin.setText("Coin : " +userModel._uCoin);
                     scrollView.setVisibility(View.VISIBLE);
                     progressView.setVisibility(View.GONE);
                 }
@@ -92,7 +103,18 @@ public class FourMainFrg extends Fragment {
         DatabaseReference userImgRef = mDatabaseRef.child("users").child(uID);
         userImgRef.keepSynced(true);
         userImgRef.addListenerForSingleValueEvent(profileImgListener);
+
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                Intent intent=new Intent(getActivity(), WelcomeAct.class);
+                startActivity(intent);
+                getActivity().finish();
+                SharedPreferences.Editor preferences = getActivity().getSharedPreferences(UserValue.SHARED_NAME, MODE_PRIVATE).edit();
+                preferences.clear();
+                preferences.commit();
+            }
+        });
     }
-
-
 }
