@@ -42,51 +42,45 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     private List<Post> postList;
-    public static final int ITEM_TYPE_HEADER = 0;
-    public static final int ITEM_TYPE_CONTENT = 1;
-    public static final int ITEM_TYPE_BOTTOM = 2;
-    private int mHeaderCount=1;
-    private int mBottomCount=1;
+//    public static final int ITEM_TYPE_HEADER = 0;
+//    public static final int ITEM_TYPE_CONTENT = 1;
+//    public static final int ITEM_TYPE_BOTTOM = 2;
+//    private int mHeaderCount=1;
+//    private int mBottomCount=1;
     private LayoutInflater mLayoutInflater;
 
-    private int lastPosition;
+
 
     private StorageReference storageReference= FirebaseStorage.getInstance().getReference();
     private Activity activity;
-    private DatabaseReference ref;
-    private ProgressView progressView;
-    private RecyclerView recyclerView;
+
+
 
 ///생성자 포스트리스트, 엑티비티, 데이터베이스 레퍼런스, 프로그래스뷰, 리사이클뷰
-    public PostAdapter(List<Post> postList, Activity activity, DatabaseReference ref,ProgressView progressView,RecyclerView recyclerView,int lastPosition) {
+    public PostAdapter(List<Post> postList, Activity activity) {
         this.postList = postList;
         this.activity=activity;
-        this.ref=ref;
-        this.progressView=progressView;
-        this.recyclerView=recyclerView;
-        mLayoutInflater=LayoutInflater.from(activity);
-        this.lastPosition=lastPosition;
 
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType ==ITEM_TYPE_HEADER) {
-            return new HeaderViewHolder(mLayoutInflater.inflate(R.layout.card_post_header, parent, false));
-        } else if (viewType == ITEM_TYPE_CONTENT) {
-            return  new PostHolder(mLayoutInflater.inflate(R.layout.card_post, parent, false));
-        } else if (viewType == ITEM_TYPE_BOTTOM) {
-            return new BottomViewHolder(mLayoutInflater.inflate(R.layout.card_post_footer, parent, false));
-        }
-        return null;
+//        if (viewType ==ITEM_TYPE_HEADER) {
+//            return new HeaderViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_post_header, parent, false));
+//        } else if (viewType == ITEM_TYPE_CONTENT) {
+            return  new PostHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_post, parent, false));
+//        } else if (viewType == ITEM_TYPE_BOTTOM) {
+//            return new BottomViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_post_footer, parent, false));
+//        }
+//        return null;
     }
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof HeaderViewHolder) {
-
-        } else if (holder instanceof PostHolder) {
-            final Post post = postList.get(position-mHeaderCount);
+//        if (holder instanceof HeaderViewHolder) {
+//
+//        } else if (holder instanceof PostHolder) {
+            final Post post = postList.get(position);
             if (post.userProfileImg != null) {
                 ((PostHolder) holder).cardUserGender.setText(post.gender);
                 ((PostHolder) holder).cardUserAge.setText(post.age);
@@ -94,8 +88,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 ((PostHolder) holder).cardPostTitle.setText(post.title);
                 Glide.with(activity).using(new FirebaseImageLoader()).load(storageReference.child(post.userProfileImg)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
                         crossFade(1000).into(((PostHolder) holder).cardUserImg);
-                progressView.setVisibility(View.INVISIBLE);
-                recyclerView.setVisibility(View.VISIBLE);
+
 
                 String stringDate = post.stampTime;
                 String getDate = _nowTime(stringDate);
@@ -112,31 +105,9 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     }
                 });
             }
-        }else if (holder instanceof BottomViewHolder) {
-            if (recyclerView.getVisibility() == View.VISIBLE) {
-                ((BottomViewHolder) holder).plusData.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ref.startAt(lastPosition).endAt(3).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                                    Post post = postSnapshot.getValue(Post.class);
-                                    postList.add(post);
-                                    lastPosition++;
-                                }
-                                notifyDataSetChanged();
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
-                });
-            }
-        }
+//        }else if (holder instanceof BottomViewHolder) {
+//
+//        }
     }
 
 
@@ -147,10 +118,10 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemCount() {
 
-        return mHeaderCount + getContentItemCount() + mBottomCount;
+        return /*mHeaderCount +*/ getContentItemCount()/* + mBottomCount*/;
     }
 
-    @Override
+   /* @Override
     public int getItemViewType(int position) {
         int dataItemCount = getContentItemCount();
         if (mHeaderCount != 0 && position < mHeaderCount) {
@@ -160,10 +131,10 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else {
             return ITEM_TYPE_CONTENT;
         }
-    }
+    }*/
 
     ////컨텐츠 뷰
-    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
+/*    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
 
         public HeaderViewHolder(View itemView) {
             super(itemView);
@@ -174,9 +145,9 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private TextView plusData;
         public BottomViewHolder(View itemView) {
             super(itemView);
-            plusData=(TextView)itemView.findViewById(R.id.plus_data);
+
         }
-    }
+    }*/
 
     public static class PostHolder extends RecyclerView.ViewHolder{
         private ImageView cardUserImg;

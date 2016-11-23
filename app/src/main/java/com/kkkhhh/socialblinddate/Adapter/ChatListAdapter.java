@@ -112,7 +112,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 ChatModel chatModel = dataSnapshot.getValue(ChatModel.class);
                 String chatBody = chatModel.body;
-                String chatTimeStamp = _nowTime(chatModel.timeStamp);
+                TimeMaximum timeMaximum=new TimeMaximum();
+                String chatTimeStamp = timeMaximum._nowTime(chatModel.timeStamp);
                 ((ViewHolder) holder).lastChat.setText(chatBody);
                 ((ViewHolder) holder).timeStamp.setText(chatTimeStamp);
             }
@@ -184,18 +185,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         });
     }
-    private String _nowTime(String stringDate){
-        java.text.SimpleDateFormat format = new java.text.SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss");
 
-        try {
-            Date date = format.parse(stringDate);
-            TimeMaximum maximum = new TimeMaximum();
-            stringDate = maximum.formatTimeString(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return stringDate;
-    }
 }
 

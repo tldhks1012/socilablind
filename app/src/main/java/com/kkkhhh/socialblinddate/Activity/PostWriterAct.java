@@ -444,15 +444,18 @@ public class PostWriterAct extends AppCompatActivity {
 
 
     private void writeNewPost(String userId,String userImg, String title, String body, String img1,String local,String gender,String age,String key) {
-
-
         long now = System.currentTimeMillis();
         Date date = new Date(now);
         SimpleDateFormat CurDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String strCurDate = CurDateFormat.format(date);
+        String stampTime = CurDateFormat.format(date);
+
+        long yetNow = -1 * new Date().getTime();
+        Date yetDate = new Date(yetNow);
+        SimpleDateFormat dataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String stump = dataFormat.format(yetDate);
 
 
-        Post post = new Post(userId,userImg, title, body, img1,local,gender,age,strCurDate,key);
+        Post post = new Post(userId,userImg, title, body, img1,local,gender,age,stampTime,key,stump);
         Map<String, Object> postValues = post.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
 

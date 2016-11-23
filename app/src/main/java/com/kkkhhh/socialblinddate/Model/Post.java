@@ -21,12 +21,13 @@ public class Post {
     public String gender;
     public String age;
     public String postKey;
+    public String stump;
 
     public Post() {
 
     }
 
-    public Post(String uid, String userProfileImg,String title, String body,String img1,String local,String gender,String age,String stampTime,String postKey) {
+    public Post(String uid, String userProfileImg,String title, String body,String img1,String local,String gender,String age,String stampTime,String postKey,String stump) {
         this.uid = uid;
         this.title = title;
         this.body = body;
@@ -37,6 +38,7 @@ public class Post {
         this.userProfileImg=userProfileImg;
         this.stampTime=stampTime;
         this.postKey=postKey;
+        this.stump=stump;
 
     }
 
@@ -53,6 +55,7 @@ public class Post {
         result.put("age", age);
         result.put("stampTime",stampTime);
         result.put("postKey",postKey);
+        result.put("stump",stump);
         return result;
     }
 }

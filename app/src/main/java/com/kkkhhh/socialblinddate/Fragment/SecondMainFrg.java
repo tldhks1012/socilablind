@@ -95,12 +95,14 @@ public class SecondMainFrg extends Fragment {
                         postList.add(postModel);
                     }
                     //PostAdapter 참조
-                    /*mAdapter = new PostAdapter(postList, getActivity(), mDatabase, progressView, recyclerView);
+                    mAdapter = new PostAdapter(postList, getActivity());
                     //리스트뷰 애니메이션 효과
                     AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
                     alphaAdapter.setDuration(1000);
                     //RecycleView 어댑터 세팅
-                    recyclerView.setAdapter(alphaAdapter);*/
+                    recyclerView.setAdapter(alphaAdapter);
+                    progressView.setVisibility(View.INVISIBLE);
+                    recyclerView.setVisibility(View.VISIBLE);
                 }
 
 
