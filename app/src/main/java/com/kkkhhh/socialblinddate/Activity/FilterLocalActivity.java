@@ -52,10 +52,10 @@ public class FilterLocalActivity extends AppCompatActivity {
         local = dataBaseFiltering.changeLocal(local);
 
         if (gender.equals("남자")) {
-            manDataReference = databaseReference.child("posts").child("man-posts-local").child(local);
+            manDataReference = databaseReference.child("posts-local").child("man").child(local);
             _initDataBaseReference(manDataReference, current_page);
         } else if (gender.equals("여자")) {
-            womanDataReference = databaseReference.child("posts").child("woman-posts-local").child(local);
+            womanDataReference = databaseReference.child("posts-local").child("woman").child(local);
             _initDataBaseReference(womanDataReference, current_page);
         }
 
@@ -70,7 +70,7 @@ public class FilterLocalActivity extends AppCompatActivity {
         postList = new ArrayList<Post>();
     }
 
-    private void _initDataBaseReference(final DatabaseReference dbRef, int current_page) {
+    private void _initDataBaseReference(final DatabaseReference dbRef, final int current_page) {
 
 
         dbRef.orderByChild("stump").limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {
@@ -104,7 +104,7 @@ public class FilterLocalActivity extends AppCompatActivity {
                         @Override
                         public void onLoadMore(int currentPage) {
                             progressView.setVisibility(View.VISIBLE);
-                            loadPaging(dbRef, 1, local);
+                            loadPaging(dbRef, current_page);
                         }
                     });
                 }
@@ -117,7 +117,7 @@ public class FilterLocalActivity extends AppCompatActivity {
         });
     }
 
-    private void loadPaging(DatabaseReference dbRef, int current_page, final String local) {
+    private void loadPaging(DatabaseReference dbRef, int current_page) {
 
 
         dbRef.orderByChild("stump").startAt(postList.get(index).stump).limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {

@@ -79,6 +79,7 @@ public class FirstMainFrg extends Fragment {
     private int index = 0;
     private static int current_page = 1;
     private String[] itemsLocal = {"서울", "부산", "대구", "대전", "울산", "광주", "인천", "세종", "경기", "경남", "경북", "전남", "전북", "강원", "제주", "충북", "충남"};
+    private String[] itemsGender = {"남자","여자"};
 
     private String genderCheck;
     private FrameLayout manBtn, womanBtn;
@@ -114,21 +115,12 @@ public class FirstMainFrg extends Fragment {
         recyclerView.setHasFixedSize(true);
 
 
-        manBtn = (FrameLayout) rootView.findViewById(R.id.frg_first_man_btn);
-        womanBtn = (FrameLayout) rootView.findViewById(R.id.frg_first_woman_btn);
 
-        manText = (TextView) rootView.findViewById(R.id.frg_first_man_txt);
-        womanText = (TextView) rootView.findViewById(R.id.frg_first_woman_txt);
         noPost = (TextView) rootView.findViewById(R.id.no_post);
         coin = (TextView) rootView.findViewById(R.id.frg_first_coin);
 
 
-        databaseReference = FirebaseDatabase.getInstance().getReference();
-        womanReference = databaseReference.child("/posts/woman-posts/");
-        manReference = databaseReference.child("/posts/man-posts/");
-
-
-
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("posts");
 
     }
 
@@ -148,9 +140,7 @@ public class FirstMainFrg extends Fragment {
 
         coin.setText("Coin: " + coinValue);
 
-        _initReference();
-        genderBtnClick(manBtn);
-        genderBtnClick(womanBtn);
+        _initDataBaseReference(databaseReference,current_page);
         filterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -170,46 +160,27 @@ public class FirstMainFrg extends Fragment {
     }
 
 
-    private void _initReference() {
-
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(UserValue.SHARED_NAME, Context.MODE_PRIVATE);
-        String gender = sharedPreferences.getString(UserValue.USER_GENDER, null);
-        switch (gender) {
-            case "남자":
-                _initDataBaseReference(womanReference, current_page, null);
-                womanTextChange();
-                break;
-            case "여자":
-                _initDataBaseReference(manReference, current_page, null);
-                manTextChange();
-                break;
-        }
-    }
 
 
-    private void genderBtnClick(final FrameLayout btn) {
+
+    private void genderBtnClick(final FrameLayout btn, final TextView womanText, final TextView manText) {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 switch (btn.getId()) {
                     case R.id.frg_first_man_btn:
-                        _initDataBaseReference(manReference, current_page, null);
-                        manTextChange();
-                        progressView.setVisibility(View.VISIBLE);
+                        manTextChange(womanText,manText);
                         break;
 
                     case R.id.frg_first_woman_btn:
-                        progressView.setVisibility(View.VISIBLE);
-                        _initDataBaseReference(womanReference, current_page, null);
-                        womanTextChange();
+                        womanTextChange(womanText,manText);
                         break;
                 }
             }
         });
 
     }
-
-    private void manTextChange() {
+    private void manTextChange(TextView womanText,TextView manText) {
         genderCheck = "남자";
         womanText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
         womanText.setTextColor(Color.GRAY);
@@ -217,7 +188,7 @@ public class FirstMainFrg extends Fragment {
         manText.setTextColor(Color.BLACK);
     }
 
-    private void womanTextChange() {
+    private void womanTextChange(TextView womanText,TextView manText) {
         genderCheck = "여자";
         womanText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
         womanText.setTextColor(Color.BLACK);
@@ -228,14 +199,25 @@ public class FirstMainFrg extends Fragment {
 
     private void alertDialog() {
         LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        genderCheck=null;
         //dialogView 레이아웃 참조
         final View dialogView = inflater.inflate(R.layout.dialog_filter_list, null);
         //필터링 지역 버튼 참조
         final Button filter_local = (Button) dialogView.findViewById(R.id.filter_dialog_local);
-        //필터링 성별 버튼 참조
 
+        //필터링 성별 버튼 참조
+        final FrameLayout manBtn = (FrameLayout) dialogView.findViewById(R.id.frg_first_man_btn);
+        final FrameLayout womanBtn = (FrameLayout) dialogView.findViewById(R.id.frg_first_woman_btn);
+
+        final TextView manText = (TextView) dialogView.findViewById(R.id.frg_first_man_txt);
+        final TextView womanText = (TextView) dialogView.findViewById(R.id.frg_first_woman_txt);
         //필터링 업로드 됐을때 버튼 참조
         final Button filter_upload_btn = (Button) dialogView.findViewById(R.id.filter_upload_btn);
+
+        genderBtnClick(manBtn,womanText,manText);
+        genderBtnClick(womanBtn,womanText,manText);
+
 
         filter_local.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -244,6 +226,9 @@ public class FirstMainFrg extends Fragment {
                 showDialog(itemsLocal, "지역선택", filter_local);
             }
         });
+
+
+
         filter_upload_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -251,21 +236,23 @@ public class FirstMainFrg extends Fragment {
                 //필터링 지역 버튼 값 String 값으로 받음
                 String localStr = filter_local.getText().toString();
 
+
                 //genderStr,localStr(성별, 지역) 값이 없을 경우 토스트 쇼
                 if (TextUtils.isEmpty(localStr)) {
                     Toast.makeText(getActivity(), "지역을 선택해주세요", Toast.LENGTH_SHORT).show();
+                }else if(TextUtils.isEmpty(genderCheck)){
+                    Toast.makeText(getActivity(), "성별을 선택해주세요", Toast.LENGTH_SHORT).show();
                 } else {
                     if (genderCheck.equals("남자")) {
-                        manTextChange();
                         Intent intent = new Intent(getActivity(), FilterLocalActivity.class);
                         intent.putExtra("local", localStr);
                         intent.putExtra("gender", "남자");
                         startActivity(intent);
-                        filterDialog.cancel();
                     } else if (genderCheck.equals("여자")) {
-                        womanTextChange();
-                        _initDataBaseReference(womanReference, current_page, localStr);
-                        filterDialog.cancel();
+                        Intent intent = new Intent(getActivity(), FilterLocalActivity.class);
+                        intent.putExtra("local", localStr);
+                        intent.putExtra("gender", "여자");
+                        startActivity(intent);
                     }
                 }
             }
@@ -300,7 +287,7 @@ public class FirstMainFrg extends Fragment {
     }
 
     //초기 레퍼런스 설정
-    private void _initDataBaseReference(final DatabaseReference dbRef, int current_page, final String local) {
+    private void _initDataBaseReference(final DatabaseReference dbRef, final int current_page) {
 
 
         dbRef.orderByChild("stump").limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {
@@ -343,7 +330,7 @@ public class FirstMainFrg extends Fragment {
                         @Override
                         public void onLoadMore(int currentPage) {
                             progressView.setVisibility(View.VISIBLE);
-                            loadPaging(dbRef, 1, local);
+                            loadPaging(dbRef,current_page);
                         }
                     });
                 }
@@ -356,7 +343,7 @@ public class FirstMainFrg extends Fragment {
         });
     }
 
-    private void loadPaging(DatabaseReference dbRef, int current_page, final String local) {
+    private void loadPaging(DatabaseReference dbRef,int current_page) {
 
 
         dbRef.orderByChild("stump").startAt(postList.get(index).stump).limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {

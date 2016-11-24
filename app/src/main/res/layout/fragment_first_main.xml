@@ -37,48 +37,7 @@
             android:background="@drawable/ic_action_filter_list"/>
         </LinearLayout>
     </android.support.v7.widget.Toolbar>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <FrameLayout
-            android:id="@+id/frg_first_man_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:clickable="true">
-            <TextView
-                android:id="@+id/frg_first_man_txt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="남자"
-                android:layout_margin="10dp"/>
-        </FrameLayout>
-        <FrameLayout
-            android:id="@+id/frg_first_woman_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:clickable="true">
-            <TextView
-                android:id="@+id/frg_first_woman_txt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="여자"
-                android:layout_margin="10dp"/>
-        </FrameLayout>
-        </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.3dp"
-            android:background="@color/colorGray"/>
-    </LinearLayout>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_recycler_view"
         android:layout_width="match_parent"

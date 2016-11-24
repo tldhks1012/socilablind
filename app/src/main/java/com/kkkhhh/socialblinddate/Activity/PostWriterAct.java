@@ -464,12 +464,11 @@ public class PostWriterAct extends AppCompatActivity {
         DataBaseFiltering dataBaseFiltering =new DataBaseFiltering();
         String localChange=dataBaseFiltering.changeLocal(local);
         childUpdates.put("/user-posts/" + userId + "/" + key, postValues);
+        childUpdates.put("/posts/" + key, postValues);
         if(gender.equals("여자")) {
-            childUpdates.put("/posts/woman-posts/" + key, postValues);
-            childUpdates.put("/posts/woman-posts-local/"+localChange+"/"+key,postValues);
+            childUpdates.put("/posts-local/woman/"+localChange+"/"+key,postValues);
         }else if(gender.equals("남자")){
-            childUpdates.put("/posts/man-posts/" + key, postValues);
-            childUpdates.put("/posts/man-posts-local/"+localChange+"/"+key,postValues);
+            childUpdates.put("/posts-local/man/"+localChange+"/"+key,postValues);
         }
 
         dataReference.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {

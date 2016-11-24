@@ -208,7 +208,6 @@ public class DetailPostAct extends AppCompatActivity {
 
                     public void onClick(DialogInterface dialog, int id) {
                         if (gender.equals("여자")) {
-
                             deletePost("woman", local);
                         } else if (gender.equals("남자")) {
                             deletePost("man", local);
@@ -230,8 +229,8 @@ public class DetailPostAct extends AppCompatActivity {
     private void deletePost(String gender, String local) {
         DataBaseFiltering dataBaseFiltering = new DataBaseFiltering();
         local = dataBaseFiltering.changeLocal(local);
-        databaseRef.child("posts").child(gender + "-posts").child(postKey).removeValue();
-        databaseRef.child("posts").child(gender + "-posts-local").child(local).child(postKey).removeValue();
+        databaseRef.child("posts").child(postKey).removeValue();
+        databaseRef.child("posts-local").child(gender).child(local).child(postKey).removeValue();
         databaseRef.child("user-posts").child(firebaseAuth.getCurrentUser().getUid()).child(postKey).removeValue();
         if (!detailImgStr.equals("@null")) {
             storageReference.child(detailImgStr).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
