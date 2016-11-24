@@ -14,7 +14,7 @@ public class TimeMaximum {
     public static final int DAY = 30;
     public static final int MONTH = 12;
 
-    public String _nowTime(String stringDate){
+    public String _nowTime(String stringDate) {
         java.text.SimpleDateFormat format = new java.text.SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss");
 
@@ -27,7 +27,8 @@ public class TimeMaximum {
         }
         return stringDate;
     }
-    public  String formatTimeString(Date tempDate) {
+
+    public String formatTimeString(Date tempDate) {
 
         long curTime = System.currentTimeMillis();
         long regTime = tempDate.getTime();

@@ -21,13 +21,13 @@ public class Post {
     public String gender;
     public String age;
     public String postKey;
-    public String stump;
+    public long stump;
 
     public Post() {
 
     }
 
-    public Post(String uid, String userProfileImg,String title, String body,String img1,String local,String gender,String age,String stampTime,String postKey,String stump) {
+    public Post(String uid, String userProfileImg,String title, String body,String img1,String local,String gender,String age,String stampTime,String postKey,long stump) {
         this.uid = uid;
         this.title = title;
         this.body = body;

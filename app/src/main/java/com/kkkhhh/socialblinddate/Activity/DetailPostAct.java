@@ -208,6 +208,7 @@ public class DetailPostAct extends AppCompatActivity {
 
                     public void onClick(DialogInterface dialog, int id) {
                         if (gender.equals("여자")) {
+
                             deletePost("woman", local);
                         } else if (gender.equals("남자")) {
                             deletePost("man", local);
@@ -227,7 +228,10 @@ public class DetailPostAct extends AppCompatActivity {
     }
 
     private void deletePost(String gender, String local) {
+        DataBaseFiltering dataBaseFiltering = new DataBaseFiltering();
+        local = dataBaseFiltering.changeLocal(local);
         databaseRef.child("posts").child(gender + "-posts").child(postKey).removeValue();
+        databaseRef.child("posts").child(gender + "-posts-local").child(local).child(postKey).removeValue();
         databaseRef.child("user-posts").child(firebaseAuth.getCurrentUser().getUid()).child(postKey).removeValue();
         if (!detailImgStr.equals("@null")) {
             storageReference.child(detailImgStr).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -249,21 +253,14 @@ public class DetailPostAct extends AppCompatActivity {
         });
     }
 
-    /*private void putChatList(String chatKey){
-        String userID=firebaseAuth.getCurrentUser().getUid();
-        ChatList chatList=new ChatList(chatKey,postUid,userID);
-       databaseRef.child("message").child(chatKey).setValue(chatList);
 
-        databaseRef.child("users").child(userID).child("chatList").setValue(chatKey);
-        databaseRef.child("users").child(postUid).child("chatList").setValue(chatKey);
-    }*/
-
+    //메세지 보낼때  send 메세지창
     private void dialogSendMessage() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         // set the title of the Alert Dialog
         alertDialogBuilder
                 .setCancelable(false)
-                .setMessage("정말 삭제하시겠습니까 ?")
+                .setMessage("상대방과 채팅 할 시 300코인이 소요가 됩니다.\n채팅을 하시겠습니까?")
                 .setPositiveButton("네", new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int id) {

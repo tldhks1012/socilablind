@@ -174,18 +174,18 @@ public class PostWriterAct extends AppCompatActivity {
     }
 
     //수정으로 들어올때
-    private void receiveIntent(){
+    private void receiveIntent() {
 
-        Intent intent =getIntent();
-        if(intent.getStringExtra("local")!=null){
+        Intent intent = getIntent();
+        if (intent.getStringExtra("local") != null) {
             progressView.setVisibility(View.VISIBLE);
-            updateLocal=intent.getStringExtra("local");
-            updateGender=intent.getStringExtra("gender");
-            updatePostKey=intent.getStringExtra("postKey");
+            updateLocal = intent.getStringExtra("local");
+            updateGender = intent.getStringExtra("gender");
+            updatePostKey = intent.getStringExtra("postKey");
 
-            if(updateGender.equals("남자")){
+            if (updateGender.equals("남자")) {
                 receiveIntentReference(manReference);
-            }else if(updateGender.equals("여자")){
+            } else if (updateGender.equals("여자")) {
                 receiveIntentReference(womanReference);
             }
         }
@@ -369,6 +369,11 @@ public class PostWriterAct extends AppCompatActivity {
                                 writerImgArray.get(position).setImageBitmap(null);
                                 writerImgCheckArray.set(position, false);
                                 fileArray[intentCheck] = null;
+                            }else if(updateImg1.equals("@null")){
+                                updateImg1 = "@null";
+                                writerImgArray.get(position).setImageBitmap(null);
+                                writerImgCheckArray.set(position, false);
+                                fileArray[intentCheck] = null;
                             }
                         }else {
                             writerImgArray.get(position).setImageBitmap(null);
@@ -450,20 +455,21 @@ public class PostWriterAct extends AppCompatActivity {
         String stampTime = CurDateFormat.format(date);
 
         long yetNow = -1 * new Date().getTime();
-        Date yetDate = new Date(yetNow);
-        SimpleDateFormat dataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String stump = dataFormat.format(yetDate);
 
 
-        Post post = new Post(userId,userImg, title, body, img1,local,gender,age,stampTime,key,stump);
+
+        Post post = new Post(userId,userImg, title, body, img1,local,gender,age,stampTime,key,yetNow);
         Map<String, Object> postValues = post.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
-
+        DataBaseFiltering dataBaseFiltering =new DataBaseFiltering();
+        String localChange=dataBaseFiltering.changeLocal(local);
         childUpdates.put("/user-posts/" + userId + "/" + key, postValues);
         if(gender.equals("여자")) {
             childUpdates.put("/posts/woman-posts/" + key, postValues);
+            childUpdates.put("/posts/woman-posts-local/"+localChange+"/"+key,postValues);
         }else if(gender.equals("남자")){
             childUpdates.put("/posts/man-posts/" + key, postValues);
+            childUpdates.put("/posts/man-posts-local/"+localChange+"/"+key,postValues);
         }
 
         dataReference.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {

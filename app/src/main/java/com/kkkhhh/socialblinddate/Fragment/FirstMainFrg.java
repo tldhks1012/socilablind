@@ -7,15 +7,9 @@ import android.content.Intent;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
-
-import android.os.Handler;
-import android.os.Looper;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,8 +24,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,43 +31,33 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import com.kkkhhh.socialblinddate.Activity.FilterLocalActivity;
 import com.kkkhhh.socialblinddate.Activity.PostWriterAct;
 
 
 import com.kkkhhh.socialblinddate.Adapter.PostAdapter;
 
-import com.kkkhhh.socialblinddate.Etc.DataBaseFiltering;
 import com.kkkhhh.socialblinddate.Etc.EndlessRecyclerOnScrollListener;
 import com.kkkhhh.socialblinddate.Etc.UserValue;
 import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.R;
 
 
-import com.kkkhhh.socialblinddate.ViewHolder.PostViewHolder;
 import com.melnykov.fab.FloatingActionButton;
 
 import com.rey.material.widget.ProgressView;
 
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-
-import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
 
 
 public class FirstMainFrg extends Fragment {
@@ -83,32 +65,22 @@ public class FirstMainFrg extends Fragment {
     private FloatingActionButton fab;
     private RecyclerView recyclerView;
     private LinearLayoutManager mManager;
-    private DatabaseReference mDatabase;
+    private DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference();
     private DatabaseReference manReference;
     private DatabaseReference womanReference;
-    /*    private ParallaxRecyclerAdapter<Post> mAdapter;*/
     private PostAdapter mAdapter;
     private List<Post> postList;
     private ProgressView progressView;
     private RequestManager mGlideRequestManager;
-    private FirebaseRecyclerAdapter<Post, PostViewHolder> fireAdapter;
     private AlertDialog filterDialog;
     private ImageButton filterBtn;
-    private static DatabaseReference loadingDBReference;
 
-    private int limitPosition;
-    private int lastPosition=5;
-
-    private String postStumpLimit;
-
-
+    private int lastPosition = 10;
+    private int index = 0;
     private static int current_page = 1;
-
     private String[] itemsLocal = {"서울", "부산", "대구", "대전", "울산", "광주", "인천", "세종", "경기", "경남", "경북", "전남", "전북", "강원", "제주", "충북", "충남"};
 
-    private FirebaseAuth fireAuth = FirebaseAuth.getInstance();
-
-    private String uID, genderCheck;
+    private String genderCheck;
     private FrameLayout manBtn, womanBtn;
     private TextView manText, womanText, noPost, coin;
 
@@ -121,7 +93,7 @@ public class FirstMainFrg extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         View rootView = inflater.inflate(R.layout.fragment_first_main, container, false);
 
         //UI 초기 설정 값
@@ -129,57 +101,6 @@ public class FirstMainFrg extends Fragment {
 
         return rootView;
     }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        mManager = new LinearLayoutManager(getActivity());
-        mManager.setStackFromEnd(false);
-        mManager.setReverseLayout(false);
-        recyclerView.setLayoutManager(mManager);
-
-
-        fab.attachToRecyclerView(recyclerView);
-
-        filterBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog();
-            }
-        });
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), PostWriterAct.class);
-                startActivity(intent);
-            }
-        });
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-    }
-
     private void _init(View rootView) {
         //플로팅액션버튼
         fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
@@ -201,23 +122,53 @@ public class FirstMainFrg extends Fragment {
         noPost = (TextView) rootView.findViewById(R.id.no_post);
         coin = (TextView) rootView.findViewById(R.id.frg_first_coin);
 
+
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+        womanReference = databaseReference.child("/posts/woman-posts/");
+        manReference = databaseReference.child("/posts/man-posts/");
+
+
+
+
+    }
+
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        mManager = new LinearLayoutManager(getActivity());
+        mManager.setStackFromEnd(false);
+        mManager.setReverseLayout(false);
+        recyclerView.setLayoutManager(mManager);
+
+
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(UserValue.SHARED_NAME, Context.MODE_PRIVATE);
         int coinValue = sharedPreferences.getInt(UserValue.USER_COIN, 0);
 
         coin.setText("Coin: " + coinValue);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        womanReference = mDatabase.child("/posts/woman-posts/");
-        manReference = mDatabase.child("/posts/man-posts/");
-        uID = fireAuth.getCurrentUser().getUid();
-
-
         _initReference();
         genderBtnClick(manBtn);
         genderBtnClick(womanBtn);
+        filterBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog();
+            }
+        });
+        fab.attachToRecyclerView(recyclerView);
 
 
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), PostWriterAct.class);
+                startActivity(intent);
+            }
+        });
     }
+
 
     private void _initReference() {
 
@@ -225,11 +176,11 @@ public class FirstMainFrg extends Fragment {
         String gender = sharedPreferences.getString(UserValue.USER_GENDER, null);
         switch (gender) {
             case "남자":
-                _initDataBaseReference(womanReference, current_page);
+                _initDataBaseReference(womanReference, current_page, null);
                 womanTextChange();
                 break;
             case "여자":
-                _initDataBaseReference(manReference, current_page);
+                _initDataBaseReference(manReference, current_page, null);
                 manTextChange();
                 break;
         }
@@ -242,14 +193,14 @@ public class FirstMainFrg extends Fragment {
             public void onClick(View v) {
                 switch (btn.getId()) {
                     case R.id.frg_first_man_btn:
-                        _initDataBaseReference(manReference, current_page);
+                        _initDataBaseReference(manReference, current_page, null);
                         manTextChange();
                         progressView.setVisibility(View.VISIBLE);
                         break;
 
                     case R.id.frg_first_woman_btn:
                         progressView.setVisibility(View.VISIBLE);
-                        _initDataBaseReference(womanReference, current_page);
+                        _initDataBaseReference(womanReference, current_page, null);
                         womanTextChange();
                         break;
                 }
@@ -306,11 +257,14 @@ public class FirstMainFrg extends Fragment {
                 } else {
                     if (genderCheck.equals("남자")) {
                         manTextChange();
-                        filterGender(localStr, manReference);
+                        Intent intent = new Intent(getActivity(), FilterLocalActivity.class);
+                        intent.putExtra("local", localStr);
+                        intent.putExtra("gender", "남자");
+                        startActivity(intent);
                         filterDialog.cancel();
                     } else if (genderCheck.equals("여자")) {
                         womanTextChange();
-                        filterGender(localStr, womanReference);
+                        _initDataBaseReference(womanReference, current_page, localStr);
                         filterDialog.cancel();
                     }
                 }
@@ -328,10 +282,10 @@ public class FirstMainFrg extends Fragment {
     private void showDialog(final String[] item, String title, final Button btn) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-//타이틀 값 설정
+        //타이틀 값 설정
         builder.setTitle(title);
         builder.setPositiveButton("닫기", null);
-//값이 입력되면 버튼으로 값 전달
+          //값이 입력되면 버튼으로 값 전달
         builder.setItems(item, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -341,48 +295,55 @@ public class FirstMainFrg extends Fragment {
 
             }
         });
-
         AlertDialog dialog = builder.create();
-
         dialog.show();
-
     }
 
     //초기 레퍼런스 설정
-    private void _initDataBaseReference(final DatabaseReference dbRef, int current_page) {
+    private void _initDataBaseReference(final DatabaseReference dbRef, int current_page, final String local) {
 
 
         dbRef.orderByChild("stump").limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() == null) {
+
                     noPost.setVisibility(View.VISIBLE);
+
                     progressView.setVisibility(View.INVISIBLE);
+
                     recyclerView.setVisibility(View.INVISIBLE);
+
                 } else {
+
                     noPost.setVisibility(View.GONE);
                     //초기에 리스트를 초기화
                     postList.clear();
+
                     //for문을 돌려 리스트 값만큼 추가
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         Post postModel = postSnapshot.getValue(Post.class);
+
                         postList.add(postModel);
-                        limitPosition++;
 
                     }
                     //PostAdapter 참조
                     mAdapter = new PostAdapter(postList, getActivity());
-                    //리스트뷰 애니메이션 효과
+
                     //RecycleView 어댑터 세팅
                     recyclerView.setAdapter(mAdapter);
+
                     progressView.setVisibility(View.INVISIBLE);
+
                     recyclerView.setVisibility(View.VISIBLE);
-                   /* postStumpLimit=postList.get(limitPosition).stump;*/
+                    //index 값
+                    index = postList.size() - 1;
+
                     recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mManager) {
                         @Override
                         public void onLoadMore(int currentPage) {
                             progressView.setVisibility(View.VISIBLE);
-                            loadPaging(dbRef, 1);
+                            loadPaging(dbRef, 1, local);
                         }
                     });
                 }
@@ -395,25 +356,26 @@ public class FirstMainFrg extends Fragment {
         });
     }
 
-    private void loadPaging(DatabaseReference dbRef, int current_page) {
-        lastPosition=lastPosition+limitPosition+1;
-        long yetNow = -1 * new Date().getTime();
-        Date yetDate = new Date(yetNow);
-        SimpleDateFormat dataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String stump = dataFormat.format(yetDate);
-        dbRef.orderByChild("stump").startAt(stump).limitToLast(lastPosition).addValueEventListener(new ValueEventListener() {
+    private void loadPaging(DatabaseReference dbRef, int current_page, final String local) {
+
+
+        dbRef.orderByChild("stump").startAt(postList.get(index).stump).limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //for문을 돌려 리스트 값만큼 추가
+                postList.remove(index);
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Post postModel = postSnapshot.getValue(Post.class);
+
                     postList.add(postModel);
-                    limitPosition++;
+
                 }
+
+
                 mAdapter.notifyDataSetChanged();
+                index = postList.size() - 1;
 
 
-              /*  postStumpLimit=postList.get(limitPosition).stump;*/
                 //리스트뷰 애니메이션 효과
                 progressView.setVisibility(View.INVISIBLE);
             }
@@ -423,34 +385,6 @@ public class FirstMainFrg extends Fragment {
 
             }
         });
-    }
-    //setData 값을 받아서 리싸이클뷰에 뿌려주는 메소드
-    private void setDatabaseReference(final DatabaseReference databaseReference, final String local) {
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                postList.clear();
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    Post postModel = postSnapshot.getValue(Post.class);
-                    if (postModel.local.equals(local)) {
-                        postList.add(postModel);
-                    }
-                }
-                mAdapter = new PostAdapter(postList, getActivity());
-                recyclerView.setAdapter(mAdapter);
-                progressView.setVisibility(View.INVISIBLE);
-                recyclerView.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void filterGender(String local, DatabaseReference databaseReference) {
-        setDatabaseReference(databaseReference, local);
     }
 }
 

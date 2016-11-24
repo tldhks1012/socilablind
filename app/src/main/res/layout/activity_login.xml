@@ -70,7 +70,7 @@
                 android:layout_marginTop="5dp"
                 android:background="@drawable/rect_edit_text"
                 android:hint="비밀번호 6자리 이상"
-                android:inputType="textEmailAddress"
+                android:inputType="textPassword"
                 android:lines="1"
                 android:padding="10dp"
                 android:textCursorDrawable="@null"
