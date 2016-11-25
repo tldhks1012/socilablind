@@ -20,8 +20,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.kkkhhh.socialblinddate.Activity.PostWriterAct;
 import com.kkkhhh.socialblinddate.Adapter.PostAdapter;
+import com.kkkhhh.socialblinddate.Etc.EndlessRecyclerOnScrollListener;
 import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.R;
+import com.melnykov.fab.FloatingActionButton;
 import com.rey.material.widget.ProgressView;
 
 import java.util.ArrayList;
@@ -39,6 +41,10 @@ public class SecondMainFrg extends Fragment {
     private PostAdapter mAdapter;
     private TextView noPost;
     private LinearLayoutManager mManager;
+    private int index = 0;
+    private int lastPosition = 10;
+    private static int current_page = 1;
+    private FloatingActionButton fab;
     public SecondMainFrg() {
         // Required empty public constructor
     }
@@ -53,19 +59,6 @@ public class SecondMainFrg extends Fragment {
         _init(rootView);
         return rootView;
     }
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        mManager = new LinearLayoutManager(getActivity());
-        mManager.setReverseLayout(true);
-        mManager.setStackFromEnd(true);
-        recyclerView.setLayoutManager(mManager);
-
-        _initReference();
-
-    }
-
     private void _init(View view){
         recyclerView = (RecyclerView) view.findViewById(R.id.rv_recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -73,12 +66,36 @@ public class SecondMainFrg extends Fragment {
         mDatabase= FirebaseDatabase.getInstance().getReference();
         postList = new ArrayList<Post>();
         noPost=(TextView)view.findViewById(R.id.no_post);
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
 
     }
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-    private void _initReference(){
+        mManager = new LinearLayoutManager(getActivity());
+        mManager.setReverseLayout(false);
+        mManager.setStackFromEnd(false);
+        recyclerView.setLayoutManager(mManager);
         String uID=fireAuth.getCurrentUser().getUid();
-        mDatabase.child("user-posts").child(uID).addValueEventListener(new ValueEventListener() {
+        _initReference(mDatabase.child("user-posts").child(uID));
+        fab.attachToRecyclerView(recyclerView);
+
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), PostWriterAct.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+
+
+    private void _initReference(final DatabaseReference databaseReference){
+
+        databaseReference.orderByChild("stump").limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.getValue()==null){
@@ -86,23 +103,37 @@ public class SecondMainFrg extends Fragment {
                     progressView.setVisibility(View.INVISIBLE);
                     recyclerView.setVisibility(View.INVISIBLE);
                 }else {
-                    noPost.setVisibility(View.INVISIBLE);
+
+                    noPost.setVisibility(View.GONE);
                     //초기에 리스트를 초기화
                     postList.clear();
+
                     //for문을 돌려 리스트 값만큼 추가
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         Post postModel = postSnapshot.getValue(Post.class);
+
                         postList.add(postModel);
+
                     }
                     //PostAdapter 참조
                     mAdapter = new PostAdapter(postList, getActivity());
-                    //리스트뷰 애니메이션 효과
-                    AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
-                    alphaAdapter.setDuration(1000);
+
                     //RecycleView 어댑터 세팅
-                    recyclerView.setAdapter(alphaAdapter);
+                    recyclerView.setAdapter(mAdapter);
+
                     progressView.setVisibility(View.INVISIBLE);
+
                     recyclerView.setVisibility(View.VISIBLE);
+                    //index 값
+                    index = postList.size() - 1;
+
+                    recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mManager) {
+                        @Override
+                        public void onLoadMore(int currentPage) {
+                            progressView.setVisibility(View.VISIBLE);
+                            loadPaging(databaseReference,current_page);
+                        }
+                    });
                 }
 
 
@@ -114,5 +145,34 @@ public class SecondMainFrg extends Fragment {
             }
         });
     }
+    private void loadPaging(DatabaseReference dbRef,int current_page) {
 
+
+        dbRef.orderByChild("stump").startAt(postList.get(index).stump).limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //for문을 돌려 리스트 값만큼 추가
+                postList.remove(index);
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Post postModel = postSnapshot.getValue(Post.class);
+
+                    postList.add(postModel);
+
+                }
+
+
+                mAdapter.notifyDataSetChanged();
+                index = postList.size() - 1;
+
+
+                //리스트뷰 애니메이션 효과
+                progressView.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 }

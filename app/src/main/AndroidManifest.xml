@@ -42,6 +42,7 @@
         </activity>
         <activity android:name=".Activity.ChatAct">
         </activity>
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
 
         <service android:name=".Fcm.MyFirebaseMessagingService">
             <intent-filter>

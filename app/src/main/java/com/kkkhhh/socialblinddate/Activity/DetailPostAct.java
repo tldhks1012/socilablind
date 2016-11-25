@@ -53,8 +53,8 @@ public class DetailPostAct extends AppCompatActivity {
     private ImageView profileIv, detailImgIv;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-    private DatabaseReference databaseRef = firebaseDatabase.getReference().getRoot();
-    private DatabaseReference manReference;
+    private DatabaseReference databaseReference = firebaseDatabase.getReference().getRoot();
+    private DatabaseReference postsRefence;
     private DatabaseReference womanReference;
     private String gender, postKey, local, detailImgStr;
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
@@ -75,8 +75,9 @@ public class DetailPostAct extends AppCompatActivity {
         local = intent.getStringExtra("local");
         DataBaseFiltering dataBaseFiltering = new DataBaseFiltering();
         local = dataBaseFiltering.changeLocal(local);
-        manReference = databaseRef.child("/posts/man-posts/");
-        womanReference = databaseRef.child("/posts/woman-posts/");
+        postsRefence=databaseReference.child("posts");
+        /*manReference = databaseRef.child("/posts/man-posts/");
+        womanReference = databaseRef.child("/posts/woman-posts/");*/
         init();
     }
 
@@ -110,15 +111,14 @@ public class DetailPostAct extends AppCompatActivity {
     }
 
     private void getData() {
-        if (gender.equals("여자")) {
-            setDataReference(womanReference);
-        } else if (gender.equals("남자")) {
-            setDataReference(manReference);
-        }
+
+            setDataReference(databaseReference);
+
+
     }
 
     private void setDataReference(DatabaseReference dataReference) {
-        dataReference.child(postKey).addListenerForSingleValueEvent(new ValueEventListener() {
+        postsRefence.child(postKey).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot != null) {
@@ -229,9 +229,9 @@ public class DetailPostAct extends AppCompatActivity {
     private void deletePost(String gender, String local) {
         DataBaseFiltering dataBaseFiltering = new DataBaseFiltering();
         local = dataBaseFiltering.changeLocal(local);
-        databaseRef.child("posts").child(postKey).removeValue();
-        databaseRef.child("posts-local").child(gender).child(local).child(postKey).removeValue();
-        databaseRef.child("user-posts").child(firebaseAuth.getCurrentUser().getUid()).child(postKey).removeValue();
+        databaseReference.child("posts").child(postKey).removeValue();
+        databaseReference.child("posts-local").child(gender).child(local).child(postKey).removeValue();
+        databaseReference.child("user-posts").child(firebaseAuth.getCurrentUser().getUid()).child(postKey).removeValue();
         if (!detailImgStr.equals("@null")) {
             storageReference.child(detailImgStr).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
@@ -269,7 +269,7 @@ public class DetailPostAct extends AppCompatActivity {
                         final int uCoin = preferences.getInt(UserValue.USER_COIN, 0);
 
                         if (uCoin > 300) {
-                            databaseRef.child("user-chatList").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+                            databaseReference.child("user-chatList").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.getValue() != null) {
@@ -307,7 +307,7 @@ public class DetailPostAct extends AppCompatActivity {
     }
 
     private void messageUpload(final String userID, final SharedPreferences.Editor editor, final int uCoin) {
-        final String chatKey = databaseRef.child("message").push().getKey();
+        final String chatKey = databaseReference.child("message").push().getKey();
         ChatList chatListUser = new ChatList(chatKey, postUid, userID);
         ChatList chatListPartner = new ChatList(chatKey, userID, postUid);
         Map<String, Object> chatListUserValues = chatListUser.toMap();
@@ -317,7 +317,7 @@ public class DetailPostAct extends AppCompatActivity {
         childUpdates.put("/user-chatList/" + postUid + "/" + chatKey, chatListPartnerValues);
         childUpdates.put("/user-chatList/" + userID + "/" + chatKey, chatListUserValues);
         childUpdates.put("/message/" + chatKey, chatListUserValues);
-        databaseRef.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
+        databaseReference.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError != null) {
@@ -327,7 +327,7 @@ public class DetailPostAct extends AppCompatActivity {
                     userCoin = uCoin - 300;
                     editor.putInt(UserValue.USER_COIN, userCoin);
                     editor.commit();
-                    databaseRef.child("users").child(userID).child("_uCoin").setValue(userCoin);
+                    databaseReference.child("users").child(userID).child("_uCoin").setValue(userCoin);
                     Intent intent = new Intent(DetailPostAct.this, ChatAct.class);
                     intent.putExtra("chatKey", chatKey);
                     startActivity(intent);

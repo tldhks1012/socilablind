@@ -1,6 +1,7 @@
 package com.kkkhhh.socialblinddate.Activity;
 
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -43,8 +45,10 @@ import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
 import com.rey.material.widget.ProgressView;
+import com.soundcloud.android.crop.Crop;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -79,8 +83,6 @@ public class PostWriterAct extends AppCompatActivity {
 
     private FirebaseDatabase mFireDB = FirebaseDatabase.getInstance();
     private DatabaseReference dataReference = mFireDB.getReference().getRoot();
-    private DatabaseReference manReference;
-    private DatabaseReference womanReference;
 
     private FirebaseAuth fireAuth = FirebaseAuth.getInstance();
 
@@ -95,6 +97,7 @@ public class PostWriterAct extends AppCompatActivity {
     String _getKey ;
 
     private static final int PICK_FROM_GALLERY = 0;
+    private Uri uri;
 
     private ProgressView progressView;
 
@@ -124,10 +127,6 @@ public class PostWriterAct extends AppCompatActivity {
         //체크리스트에 체크 추가
         writerImgCheckArray.add(writeIvCheck);
 
-        //남자 DB레퍼런스
-        manReference=dataReference.child("/posts/man-posts/");
-        //여자 DB레퍼런스
-        womanReference=dataReference.child("/posts/woman-posts/");
 
         //유저 값 들고오기
         getUserValue();
@@ -177,17 +176,12 @@ public class PostWriterAct extends AppCompatActivity {
     private void receiveIntent() {
 
         Intent intent = getIntent();
-        if (intent.getStringExtra("local") != null) {
+        if (intent.getStringExtra("postKey") != null) {
             progressView.setVisibility(View.VISIBLE);
-            updateLocal = intent.getStringExtra("local");
-            updateGender = intent.getStringExtra("gender");
+
             updatePostKey = intent.getStringExtra("postKey");
 
-            if (updateGender.equals("남자")) {
-                receiveIntentReference(manReference);
-            } else if (updateGender.equals("여자")) {
-                receiveIntentReference(womanReference);
-            }
+            receiveIntentReference(dataReference.child("user-posts").child(getUid));
         }
     }
 
@@ -268,46 +262,82 @@ public class PostWriterAct extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+
         if (requestCode == PICK_FROM_GALLERY) {
             if (resultCode == RESULT_OK) {
-                String getByteString;
-                // 1. Uri 값을 얻은 후에 Uri 실제 경로값을 찾는다
-                Uri getUri = data.getData();
-                String uriPath = getRealPathFromURI(getUri);
-                Bitmap orgImage;
-                try {
-                    // 2. 사진이 회전되는걸 막기위한 소스
-                    ExifInterface exif = new ExifInterface(uriPath);
-                    int exifOrientation = exif.getAttributeInt(
-                            ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                    int exifDegree = exifOrientationToDegrees(exifOrientation);
-                    // 3. 사진의 용량을 줄이는 소스
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    /*options.inSampleSize = 2;*/
-                    orgImage = BitmapFactory.decodeFile(uriPath, options);
-                    orgImage = rotate(orgImage, exifDegree);
-                    // 4. Bitmap값을 배열로 변화
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    orgImage.compress(Bitmap.CompressFormat.JPEG, 65, baos);
-                    byte[] dataByte = baos.toByteArray();
-                    // 5. Glide 라이브러리를 이용하여 이미지뷰에 삽입
-                    Glide.with(this).
-                            load(dataByte)
-                            .centerCrop()
-                            .into(writerImgArray.get(intentCheck));
-                    // 6. 지정한 체크값에 intentCheck 사진이 들어갈 경우 true 반환
-                    writerImgCheckArray.set(intentCheck, true);
-                    // 6. 배열값을 그대로 스트링 값으로 삽입
-                    getByteString = Base64.encodeToString(dataByte, 0);
-                    fileArray[intentCheck] = getByteString;
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (data != null) {
+
+                    uri = data.getData();
+
+                    ImageCropFunction();
+
                 }
+                // 1. Uri 값을 얻은 후에 Uri 실제 경로값을 찾는다
 
             }
+        }else if (requestCode == 1) {
+
+                if (data != null) {
+                    String getByteString;
+                    File tempFile = new File(Environment.getExternalStorageDirectory() + "/temp.jpg");
+                    Uri tempUri = Uri.fromFile(tempFile);
+                    String uriPath =  tempUri.toString();
+                    Bitmap orgImage;
+                    try {
+                        // 2. 사진이 회전되는걸 막기위한 소스
+                        ExifInterface exif = new ExifInterface(uriPath);
+                        int exifOrientation = exif.getAttributeInt(
+                                ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        int exifDegree = exifOrientationToDegrees(exifOrientation);
+                        // 3. 사진의 용량을 줄이는 소스
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inSampleSize = 2;
+                        orgImage = BitmapFactory.decodeFile(uriPath, options);
+                        orgImage = rotate(orgImage, exifDegree);
+                        // 4. Bitmap값을 배열로 변화
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        orgImage.compress(Bitmap.CompressFormat.JPEG, 65, baos);
+                        byte[] dataByte = baos.toByteArray();
+                        // 5. Glide 라이브러리를 이용하여 이미지뷰에 삽입
+                        Glide.with(this).
+                                load(dataByte)
+                                .centerCrop()
+                                .into(writerImgArray.get(intentCheck));
+                        // 6. 지정한 체크값에 intentCheck 사진이 들어갈 경우 true 반환
+                        writerImgCheckArray.set(intentCheck, true);
+                        // 6. 배열값을 그대로 스트링 값으로 삽입
+                        getByteString = Base64.encodeToString(dataByte, 0);
+                        fileArray[intentCheck] = getByteString;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
         }
     }
+    public void ImageCropFunction() {
 
+        // Image Crop Code
+        try {
+            Intent intent = new Intent("com.android.camera.action.CROP");
+
+            intent.setDataAndType(uri, "image/*");
+
+            intent.putExtra("crop", "true");
+            intent.putExtra("outputX", 180);
+            intent.putExtra("outputY", 180);
+            intent.putExtra("aspectX", 3);
+            intent.putExtra("aspectY", 4);
+            intent.putExtra("scaleUpIfNeeded", true);
+            intent.putExtra("return-data", true);
+
+            startActivityForResult(intent, 1);
+
+        } catch (ActivityNotFoundException e) {
+
+        }
+    }
     //사진
     public Bitmap rotate(Bitmap bitmap, int degrees) {
         if (degrees != 0 && bitmap != null) {

@@ -65,25 +65,19 @@ public class FirstMainFrg extends Fragment {
     private FloatingActionButton fab;
     private RecyclerView recyclerView;
     private LinearLayoutManager mManager;
-    private DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference();
-    private DatabaseReference manReference;
-    private DatabaseReference womanReference;
+    private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
     private PostAdapter mAdapter;
     private List<Post> postList;
     private ProgressView progressView;
     private RequestManager mGlideRequestManager;
     private AlertDialog filterDialog;
-    private ImageButton filterBtn;
 
     private int lastPosition = 10;
     private int index = 0;
     private static int current_page = 1;
     private String[] itemsLocal = {"서울", "부산", "대구", "대전", "울산", "광주", "인천", "세종", "경기", "경남", "경북", "전남", "전북", "강원", "제주", "충북", "충남"};
-    private String[] itemsGender = {"남자","여자"};
-
     private String genderCheck;
-    private FrameLayout manBtn, womanBtn;
-    private TextView manText, womanText, noPost, coin;
+    private TextView noPost, coin;
 
 
     public FirstMainFrg() {
@@ -102,18 +96,18 @@ public class FirstMainFrg extends Fragment {
 
         return rootView;
     }
+
     private void _init(View rootView) {
         //플로팅액션버튼
         fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
         //필터 이미지 버튼
-        filterBtn = (ImageButton) rootView.findViewById(R.id.frg_first_filter_btn);
+
         //progressView
         progressView = (ProgressView) rootView.findViewById(R.id.progressview);
         mGlideRequestManager = Glide.with(this);
         postList = new ArrayList<Post>();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_recycler_view);
         recyclerView.setHasFixedSize(true);
-
 
 
         noPost = (TextView) rootView.findViewById(R.id.no_post);
@@ -140,27 +134,18 @@ public class FirstMainFrg extends Fragment {
 
         coin.setText("Coin: " + coinValue);
 
-        _initDataBaseReference(databaseReference,current_page);
-        filterBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog();
-            }
-        });
+        _initDataBaseReference(databaseReference, current_page);
+
         fab.attachToRecyclerView(recyclerView);
 
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), PostWriterAct.class);
-                startActivity(intent);
+                alertDialog();
             }
         });
     }
-
-
-
 
 
     private void genderBtnClick(final FrameLayout btn, final TextView womanText, final TextView manText) {
@@ -169,18 +154,19 @@ public class FirstMainFrg extends Fragment {
             public void onClick(View v) {
                 switch (btn.getId()) {
                     case R.id.frg_first_man_btn:
-                        manTextChange(womanText,manText);
+                        manTextChange(womanText, manText);
                         break;
 
                     case R.id.frg_first_woman_btn:
-                        womanTextChange(womanText,manText);
+                        womanTextChange(womanText, manText);
                         break;
                 }
             }
         });
 
     }
-    private void manTextChange(TextView womanText,TextView manText) {
+
+    private void manTextChange(TextView womanText, TextView manText) {
         genderCheck = "남자";
         womanText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
         womanText.setTextColor(Color.GRAY);
@@ -188,7 +174,7 @@ public class FirstMainFrg extends Fragment {
         manText.setTextColor(Color.BLACK);
     }
 
-    private void womanTextChange(TextView womanText,TextView manText) {
+    private void womanTextChange(TextView womanText, TextView manText) {
         genderCheck = "여자";
         womanText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
         womanText.setTextColor(Color.BLACK);
@@ -200,7 +186,7 @@ public class FirstMainFrg extends Fragment {
     private void alertDialog() {
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        genderCheck=null;
+        genderCheck = null;
         //dialogView 레이아웃 참조
         final View dialogView = inflater.inflate(R.layout.dialog_filter_list, null);
         //필터링 지역 버튼 참조
@@ -215,8 +201,8 @@ public class FirstMainFrg extends Fragment {
         //필터링 업로드 됐을때 버튼 참조
         final Button filter_upload_btn = (Button) dialogView.findViewById(R.id.filter_upload_btn);
 
-        genderBtnClick(manBtn,womanText,manText);
-        genderBtnClick(womanBtn,womanText,manText);
+        genderBtnClick(manBtn, womanText, manText);
+        genderBtnClick(womanBtn, womanText, manText);
 
 
         filter_local.setOnClickListener(new View.OnClickListener() {
@@ -226,7 +212,6 @@ public class FirstMainFrg extends Fragment {
                 showDialog(itemsLocal, "지역선택", filter_local);
             }
         });
-
 
 
         filter_upload_btn.setOnClickListener(new View.OnClickListener() {
@@ -240,7 +225,7 @@ public class FirstMainFrg extends Fragment {
                 //genderStr,localStr(성별, 지역) 값이 없을 경우 토스트 쇼
                 if (TextUtils.isEmpty(localStr)) {
                     Toast.makeText(getActivity(), "지역을 선택해주세요", Toast.LENGTH_SHORT).show();
-                }else if(TextUtils.isEmpty(genderCheck)){
+                } else if (TextUtils.isEmpty(genderCheck)) {
                     Toast.makeText(getActivity(), "성별을 선택해주세요", Toast.LENGTH_SHORT).show();
                 } else {
                     if (genderCheck.equals("남자")) {
@@ -272,7 +257,7 @@ public class FirstMainFrg extends Fragment {
         //타이틀 값 설정
         builder.setTitle(title);
         builder.setPositiveButton("닫기", null);
-          //값이 입력되면 버튼으로 값 전달
+        //값이 입력되면 버튼으로 값 전달
         builder.setItems(item, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -330,7 +315,7 @@ public class FirstMainFrg extends Fragment {
                         @Override
                         public void onLoadMore(int currentPage) {
                             progressView.setVisibility(View.VISIBLE);
-                            loadPaging(dbRef,current_page);
+                            loadPaging(dbRef, current_page);
                         }
                     });
                 }
@@ -343,7 +328,7 @@ public class FirstMainFrg extends Fragment {
         });
     }
 
-    private void loadPaging(DatabaseReference dbRef,int current_page) {
+    private void loadPaging(DatabaseReference dbRef, int current_page) {
 
 
         dbRef.orderByChild("stump").startAt(postList.get(index).stump).limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {
