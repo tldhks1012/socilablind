@@ -148,7 +148,7 @@ public class DetailPostAct extends AppCompatActivity {
                         noImgTv.setVisibility(View.VISIBLE);
                         progressView.setVisibility(View.GONE);
                     } else {
-                        Glide.with(DetailPostAct.this).using(new FirebaseImageLoader()).load(storageReference.child(post.img1)).fitCenter().listener(new RequestListener<StorageReference, GlideDrawable>() {
+                        Glide.with(DetailPostAct.this).using(new FirebaseImageLoader()).load(storageReference.child(post.img1)).centerCrop().listener(new RequestListener<StorageReference, GlideDrawable>() {
                             @Override
                             public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
                                 progressView.setVisibility(View.GONE);
