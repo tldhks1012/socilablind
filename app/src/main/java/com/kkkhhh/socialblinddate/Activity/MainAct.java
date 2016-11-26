@@ -61,6 +61,8 @@ public class MainAct extends AppCompatActivity implements View.OnClickListener {
 
         actionPublicList.setImageResource(R.drawable.ic_action_list_public_yellow);
         FragmentManager fm = getSupportFragmentManager();
+        Bundle bundle = new Bundle();
+        mFragment.setArguments(bundle);
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_place, mFragment);
         fragmentTransaction.commit();

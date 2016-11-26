@@ -290,6 +290,7 @@ public class PostWriterAct extends AppCompatActivity {
                                 load(dataByte)
                                 .centerCrop()
                                 .into(writerImgArray.get(intentCheck));
+                        writerImgCheckArray.set(intentCheck,true);
                         String getByteString = Base64.encodeToString(dataByte, 0);
                         fileArray[intentCheck] = getByteString;
                     } catch (IOException e) {
@@ -375,14 +376,13 @@ public class PostWriterAct extends AppCompatActivity {
     //이미지 파일을 전송
     private void uploadStorage() {
         _getKey = dataReference.child("posts").push().getKey();
-        if (writeIvStr == "@null") {
-            storageRef.child(getUid).child("img1").delete();
-        } else {
-            byte[] file = Base64.decode(writeIvStr, 0);
-            StorageReference img1_Ref = storageRef.child("post").child(_getKey).child(getUid).child("img1");
-            img1_Ref.putBytes(file);
-            writeIvStr = img1_Ref.getPath();
+
+        if(updatePostKey==null){
+            ImgSet(_getKey);
+        }else{
+            ImgSet(updatePostKey);
         }
+
 
         if(updateImg1!=null){
             if(!updateImg1.equals("@null")&&(writerImgCheckArray.get(0)==true)){
@@ -392,6 +392,17 @@ public class PostWriterAct extends AppCompatActivity {
             }
         }else {
             writeNewPost(getUid, userProfileImg, titleStr, bodyStr, writeIvStr, userLocal, userGender, userAge,_getKey);
+        }
+    }
+
+    private void ImgSet(String key){
+        if (writeIvStr == "@null") {
+            storageRef.child("post").child(getUid).child(key).child("img1").delete();
+        } else {
+            byte[] file = Base64.decode(writeIvStr, 0);
+            StorageReference img1_Ref = storageRef.child("post").child(getUid).child(key).child("img1");
+            img1_Ref.putBytes(file);
+            writeIvStr = img1_Ref.getPath();
         }
     }
 
