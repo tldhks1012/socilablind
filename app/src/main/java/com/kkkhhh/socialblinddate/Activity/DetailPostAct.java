@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
@@ -24,6 +25,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -38,6 +41,7 @@ import com.kkkhhh.socialblinddate.R;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import android.widget.ImageButton;
 import com.rey.material.widget.ProgressView;
 
 import java.util.ArrayList;
@@ -54,14 +58,16 @@ public class DetailPostAct extends AppCompatActivity {
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference = firebaseDatabase.getReference().getRoot();
-    private DatabaseReference postsRefence;
-    private DatabaseReference womanReference;
+    private DatabaseReference postsReference;
+    private ImageButton postLike;
+
     private String gender, postKey, local, detailImgStr;
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
     private ProgressView progressView;
     private FrameLayout goToProfile, goToMessage, deleteBtn, updateBtn;
     private LinearLayout noUidMenu, uIDMenu;
     private String postUid;
+    public RequestManager mGlideRequestManager;
 
 
     @Override
@@ -73,11 +79,9 @@ public class DetailPostAct extends AppCompatActivity {
         gender = intent.getStringExtra("gender");
         postKey = intent.getStringExtra("postKey");
         local = intent.getStringExtra("local");
-        DataBaseFiltering dataBaseFiltering = new DataBaseFiltering();
+        DataBaseFiltering dataBaseFiltering=new DataBaseFiltering();
         local = dataBaseFiltering.changeLocal(local);
-        postsRefence=databaseReference.child("posts");
-        /*manReference = databaseRef.child("/posts/man-posts/");
-        womanReference = databaseRef.child("/posts/woman-posts/");*/
+        postsReference=databaseReference.child("posts");
         init();
     }
 
@@ -104,63 +108,101 @@ public class DetailPostAct extends AppCompatActivity {
         deleteBtn = (FrameLayout) findViewById(R.id.detail_post_delete_btn);
         updateBtn = (FrameLayout) findViewById(R.id.detail_post_change_btn);
         goToMessage = (FrameLayout) findViewById(R.id.go_to_message);
+        postLike=(ImageButton)findViewById(R.id.post_like);
         getData();
         _deletePost(deleteBtn);
         _updatePost(updateBtn);
         sendMessage();
+        mGlideRequestManager=Glide.with(getApplicationContext());
     }
 
     private void getData() {
-
-            setDataReference(databaseReference);
-
-
+    setDataReference(postsReference);
     }
 
-    private void setDataReference(DatabaseReference dataReference) {
-        postsRefence.child(postKey).addListenerForSingleValueEvent(new ValueEventListener() {
+    private void setDataReference(final DatabaseReference dataReference) {
+        dataReference.child(postKey).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot != null) {
-                    Post post = dataSnapshot.getValue(Post.class);
-                    String userID = firebaseAuth.getCurrentUser().getUid().toString();
+                    final Post post = dataSnapshot.getValue(Post.class);
+                    if (post != null) {
+                        if (post.stars.containsKey(getUid())) {
+                            postLike.setImageResource(R.drawable.ic_action_like_pull_white);
+                        } else {
+                            postLike.setImageResource(R.drawable.ic_action_like_white);
+                        }
 
-                    postUid = post.uid;
-                    if (postUid.equals(userID)) {
-                        noUidMenu.setVisibility(View.GONE);
-                        uIDMenu.setVisibility(View.VISIBLE);
-                    } else {
-                        noUidMenu.setVisibility(View.VISIBLE);
-                        uIDMenu.setVisibility(View.GONE);
-                    }
 
-                    Glide.with(DetailPostAct.this).using(new FirebaseImageLoader()).load(storageReference.child(post.userProfileImg)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
-                            crossFade(1000).into(profileIv);
-
-                    bodyTv.setText(post.body);
-                    bodyTv.setMovementMethod(new ScrollingMovementMethod());
-                    ageTv.setText(post.age);
-                    genderTv.setText(post.gender);
-                    localTv.setText(post.local);
-                    detailImgStr = post.img1;
-
-                    if (post.img1.equals("@null")) {
-                        noImgTv.setVisibility(View.VISIBLE);
-                        progressView.setVisibility(View.GONE);
-                    } else {
-                        Glide.with(DetailPostAct.this).using(new FirebaseImageLoader()).load(storageReference.child(post.img1)).centerCrop().listener(new RequestListener<StorageReference, GlideDrawable>() {
+                        postLike.setOnClickListener(new View.OnClickListener() {
                             @Override
-                            public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
-                                progressView.setVisibility(View.GONE);
-                                return false;
+                            public void onClick(View v) {
+                                DatabaseReference globalPosts = databaseReference.child("posts").child(postKey);
+                                if (gender.equals("여자")) {
+                                    String gender = "woman";
+                                    DatabaseReference genderPosts = databaseReference.child("posts-local").child(gender).child(local).child(postKey);
+                                    onLike(genderPosts);
+                                } else if (gender.equals("남자")) {
+                                    String gender = "man";
+                                    DatabaseReference genderPosts = databaseReference.child("posts-local").child(gender).child(local).child(postKey);
+                                    onLike(genderPosts);
+                                }
+                                DatabaseReference userPosts = databaseReference.child("user-posts").child(getUid()).child(postKey);
+                                onLike(globalPosts);
+                                onLike(userPosts);
                             }
+                        });
 
+                        postUid = post.uid;
+                        if (postUid.equals(getUid())) {
+                            noUidMenu.setVisibility(View.GONE);
+                            uIDMenu.setVisibility(View.VISIBLE);
+                        } else {
+                            noUidMenu.setVisibility(View.VISIBLE);
+                            uIDMenu.setVisibility(View.GONE);
+                        }
+
+                        profileIv.post(new Runnable() {
                             @Override
-                            public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                progressView.setVisibility(View.GONE);
-                                return false;
+                            public void run() {
+                                mGlideRequestManager.using(new FirebaseImageLoader()).load(storageReference.child(post.userProfileImg)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
+                                        crossFade(1000).into(profileIv);
                             }
-                        }).into(detailImgIv);
+                        });
+
+
+                        bodyTv.setText(post.body);
+                        bodyTv.setMovementMethod(new ScrollingMovementMethod());
+                        ageTv.setText(post.age);
+                        genderTv.setText(post.gender);
+                        localTv.setText(post.local);
+                        detailImgStr = post.img1;
+
+
+                        if (post.img1.equals("@null")) {
+                            noImgTv.setVisibility(View.VISIBLE);
+                            progressView.setVisibility(View.GONE);
+                        } else {
+                            detailImgIv.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mGlideRequestManager.using(new FirebaseImageLoader()).load(storageReference.child(post.img1)).fitCenter().listener(new RequestListener<StorageReference, GlideDrawable>() {
+                                        @Override
+                                        public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                            progressView.setVisibility(View.GONE);
+                                            return false;
+                                        }
+
+                                        @Override
+                                        public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                            progressView.setVisibility(View.GONE);
+                                            return false;
+                                        }
+                                    }).into(detailImgIv);
+                                }
+                            });
+
+                        }
                     }
                 }
             }
@@ -171,8 +213,41 @@ public class DetailPostAct extends AppCompatActivity {
             }
         });
     }
+    //좋아요 구현
+    private void onLike(DatabaseReference postRef) {
+        postRef.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                Post p = mutableData.getValue(Post.class);
+                if (p == null) {
+                    return Transaction.success(mutableData);
+                }
 
+                if (p.stars.containsKey(getUid())) {
+                    // Unstar the post and remove self from stars
+                    p.starCount = p.starCount - 1;
+                    p.stars.remove(getUid());
+                } else {
+                    // Star the post and add self to stars
+                    p.starCount = p.starCount + 1;
+                    p.stars.put(getUid(), true);
+                }
 
+                // Set value and report transaction success
+                mutableData.setValue(p);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b,
+                                   DataSnapshot dataSnapshot) {
+                // Transaction completed
+                Log.d("", "postTransaction:onComplete:" + databaseError);
+            }
+        });
+    }
+
+    //수정 구현
     private void _updatePost(FrameLayout frameLayout) {
         frameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,7 +261,7 @@ public class DetailPostAct extends AppCompatActivity {
         });
     }
 
-
+    //삭제 구현
     private void _deletePost(FrameLayout frameLayout) {
         frameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,7 +272,7 @@ public class DetailPostAct extends AppCompatActivity {
 
     }
 
-    //삭제 다이아로그
+
     private void dialogYesOrNo() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         // set the title of the Alert Dialog
@@ -335,6 +410,12 @@ public class DetailPostAct extends AppCompatActivity {
                 }
             }
         });
+    }
+
+
+    private String getUid(){
+        return firebaseAuth.getCurrentUser().getUid().toString();
+
     }
 }
 

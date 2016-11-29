@@ -52,7 +52,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         cardUserGender = (TextView) itemView.findViewById(R.id.card_gender);
         cardUserAge = (TextView) itemView.findViewById(R.id.card_age);
         cardUserLocal = (TextView) itemView.findViewById(R.id.card_local);
-        cardPostTitle = (TextView) itemView.findViewById(R.id.card_title);
+ /*       cardPostTitle = (TextView) itemView.findViewById(R.id.card_title);*/
         cardView = (CardView) itemView.findViewById(R.id.card_view);
         cardTimeStamp = (TextView) itemView.findViewById(R.id.card_timestamp);
     }

@@ -22,6 +22,8 @@ public class Post {
     public String age;
     public String postKey;
     public long stump;
+    public int starCount = 0;
+    public Map<String, Boolean> stars = new HashMap<>();
 
     public Post() {
 
@@ -56,6 +58,8 @@ public class Post {
         result.put("stampTime",stampTime);
         result.put("postKey",postKey);
         result.put("stump",stump);
+        result.put("starCount", starCount);
+        result.put("stars", stars);
         return result;
     }
 }

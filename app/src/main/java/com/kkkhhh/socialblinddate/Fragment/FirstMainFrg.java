@@ -39,7 +39,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import com.google.firebase.database.ValueEventListener;
 import com.kkkhhh.socialblinddate.Activity.FilterLocalActivity;
-import com.kkkhhh.socialblinddate.Activity.PostWriterAct;
 
 
 import com.kkkhhh.socialblinddate.Adapter.PostAdapter;

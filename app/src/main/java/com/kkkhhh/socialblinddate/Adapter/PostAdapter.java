@@ -151,6 +151,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public static class PostHolder extends RecyclerView.ViewHolder{
         private ImageView cardUserImg;
+
         private TextView cardUserGender;
         private TextView cardUserAge;
         private TextView cardUserLocal;
@@ -167,6 +168,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             cardPostTitle=(TextView)itemView.findViewById(R.id.card_title);
             cardView=(CardView)itemView.findViewById(R.id.card_view);
             cardTimeStamp=(TextView)itemView.findViewById(R.id.card_timestamp);
+
 
         }
     }

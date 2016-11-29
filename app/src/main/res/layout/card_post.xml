@@ -19,24 +19,22 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_margin="10dp">
             <ImageView
                 android:id="@+id/card_img"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginTop="10dp"
-                android:layout_margin="10dp"/>
-
-
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"/>
 
                 <TextView
                     android:id="@+id/card_local"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="10dp"/>
+                    android:layout_marginLeft="10dp"
+                    android:layout_gravity="center_vertical"/>
 
                 <TextView
                     android:id="@+id/card_gender"
@@ -48,31 +46,29 @@
                     android:id="@+id/card_age"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="10dp"/>
-
-
+                    android:layout_marginLeft="10dp"
+                    android:layout_gravity="center_vertical"/>
             </LinearLayout>
 
-
         </LinearLayout>
-
         <TextView
             android:id="@+id/card_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="30dp"/>
-
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_margin="30dp">
         <TextView
             android:id="@+id/card_timestamp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="10dp"
-            android:layout_margin="30dp"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.3dp"
-            android:background="@color/colorGray"/>
+           />
+</LinearLayout>
+
        <!-- <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -1,5 +1,8 @@
 package com.kkkhhh.socialblinddate.Activity;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -21,6 +24,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+
+import com.kkkhhh.socialblinddate.Etc.BroadcastD;
 import com.kkkhhh.socialblinddate.Etc.UserValue;
 import com.kkkhhh.socialblinddate.Fragment.FirstMainFrg;
 import com.kkkhhh.socialblinddate.Fragment.FourMainFrg;
@@ -28,6 +33,8 @@ import com.kkkhhh.socialblinddate.Fragment.SecondMainFrg;
 import com.kkkhhh.socialblinddate.Fragment.ThirdMainFrg;
 import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
+
+import java.util.Calendar;
 
 public class MainAct extends AppCompatActivity implements View.OnClickListener {
     private ImageView actionPublicList, actionMyList, actionMsg, actionProfile;

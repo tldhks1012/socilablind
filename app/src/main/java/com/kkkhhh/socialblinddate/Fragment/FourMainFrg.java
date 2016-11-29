@@ -16,6 +16,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -46,7 +49,7 @@ public class FourMainFrg extends Fragment {
     private FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     private StorageReference mStoreRef = firebaseStorage.getReference();
     private ImageView profileImg;
-    private TextView nickName,coin;
+    private TextView nickName, coin;
     private String uID;
     private ProgressView progressView;
     private ScrollView scrollView;
@@ -87,11 +90,26 @@ public class FourMainFrg extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot != null) {
                     final UserModel userModel = dataSnapshot.getValue(UserModel.class);
-                    mGlideRequestManager.using(new FirebaseImageLoader()).load(mStoreRef.child(userModel._uImage1)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).into(profileImg);
-                    nickName.setText(userModel._uNickname);
-                    coin.setText("Coin : " +userModel._uCoin);
-                    scrollView.setVisibility(View.VISIBLE);
-                    progressView.setVisibility(View.GONE);
+                    mGlideRequestManager.using(new FirebaseImageLoader()).load(mStoreRef.child(userModel._uImage1)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).listener(new RequestListener<StorageReference, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            nickName.setText(userModel._uNickname);
+                            coin.setText("Coin : " +userModel._uCoin);
+                            scrollView.setVisibility(View.VISIBLE);
+                            progressView.setVisibility(View.GONE);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            nickName.setText(userModel._uNickname);
+                            coin.setText("Coin : " +userModel._uCoin);
+                            scrollView.setVisibility(View.VISIBLE);
+                            progressView.setVisibility(View.GONE);
+                            return false;
+                        }
+                    }).into(profileImg);
+
                 }
             }
 
