@@ -315,6 +315,7 @@ public class FirstMainFrg extends Fragment {
                         public void onLoadMore(int currentPage) {
                             progressView.setVisibility(View.VISIBLE);
                             loadPaging(dbRef, current_page);
+                            progressView.setVisibility(View.INVISIBLE);
                         }
                     });
                 }

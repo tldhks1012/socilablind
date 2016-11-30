@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -56,11 +57,12 @@ public class DetailPostAct extends AppCompatActivity {
     private DatabaseReference postsReference;
     private String gender, postKey, local, detailImgStr;
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-    private ProgressView progressView;
+    private ProgressView imgProgressView,progressView;
     private FrameLayout goToProfile, goToMessage, deleteBtn, updateBtn;
     private LinearLayout noUidMenu, uIDMenu;
     private String postUid;
     private RequestManager mGlideRequestManager;
+    private CardView cardView;
 
 
     @Override
@@ -93,7 +95,9 @@ public class DetailPostAct extends AppCompatActivity {
         profileIv = (ImageView) findViewById(R.id.detail_profile_img);
         detailImgIv = (ImageView) findViewById(R.id.detail_post_img);
         noImgTv = (TextView) findViewById(R.id.detail_no_img);
-        progressView = (ProgressView) findViewById(R.id.detail_image_progress);
+        imgProgressView = (ProgressView) findViewById(R.id.detail_image_progress);
+        progressView=(ProgressView) findViewById(R.id.progressview);
+        cardView=(CardView)findViewById(R.id.card_view);
         goToProfile = (FrameLayout) findViewById(R.id.go_to_profile);
         goToMessage = (FrameLayout) findViewById(R.id.go_to_message);
         noUidMenu = (LinearLayout) findViewById(R.id.detail_no_uid_menu);
@@ -101,7 +105,7 @@ public class DetailPostAct extends AppCompatActivity {
         deleteBtn = (FrameLayout) findViewById(R.id.detail_post_delete_btn);
         updateBtn = (FrameLayout) findViewById(R.id.detail_post_change_btn);
 
-
+        cardView.setVisibility(View.INVISIBLE);
         getData();
         _deletePost(deleteBtn);
         _updatePost(updateBtn);
@@ -138,8 +142,22 @@ public class DetailPostAct extends AppCompatActivity {
                                 storageReference.child(post.userProfileImg).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
-                                        mGlideRequestManager.load(uri).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
-                                                crossFade(1000).into(profileIv);
+                                        mGlideRequestManager.load(uri).override(50,50).placeholder(R.drawable.ic_action_list_my_white).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
+                                               listener(new RequestListener<Uri, GlideDrawable>() {
+                                                   @Override
+                                                   public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                                       cardView.setVisibility(View.VISIBLE);
+                                                       progressView.setVisibility(View.INVISIBLE);
+                                                       return false;
+                                                   }
+
+                                                   @Override
+                                                   public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                                       cardView.setVisibility(View.VISIBLE);
+                                                       progressView.setVisibility(View.INVISIBLE);
+                                                       return false;
+                                                   }
+                                               }).into(profileIv);
                                     }
                                 });
 
@@ -157,7 +175,7 @@ public class DetailPostAct extends AppCompatActivity {
 
                         if (post.img1.equals("@null")) {
                             noImgTv.setVisibility(View.VISIBLE);
-                            progressView.setVisibility(View.GONE);
+                            imgProgressView.setVisibility(View.GONE);
                         } else {
                             detailImgIv.post(new Runnable() {
                                 @Override
@@ -168,13 +186,13 @@ public class DetailPostAct extends AppCompatActivity {
                                             mGlideRequestManager.load(uri).fitCenter().listener(new RequestListener<Uri, GlideDrawable>() {
                                                 @Override
                                                 public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
-                                                    progressView.setVisibility(View.GONE);
+                                                    imgProgressView.setVisibility(View.GONE);
                                                     return false;
                                                 }
 
                                                 @Override
                                                 public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                                    progressView.setVisibility(View.GONE);
+                                                    imgProgressView.setVisibility(View.GONE);
                                                     return false;
                                                 }
                                             }).into(detailImgIv);

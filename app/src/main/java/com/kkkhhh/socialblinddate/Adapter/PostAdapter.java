@@ -94,23 +94,11 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 ((PostHolder) holder).cardUserAge.setText(post.age);
                 ((PostHolder) holder).cardUserLocal.setText(post.local);
                 ((PostHolder) holder).cardPostTitle.setText(post.title);
+
                 storageReference.child(post.userProfileImg).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        Glide.with(activity).load(uri).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
-                                crossFade(1000).listener(new RequestListener<Uri, GlideDrawable>() {
-                            @Override
-                            public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
-                                progressView.setVisibility(View.INVISIBLE);
-                                return false;
-                            }
-
-                            @Override
-                            public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                progressView.setVisibility(View.INVISIBLE);
-                                return false;
-                            }
-                        }).into(((PostHolder) holder).cardUserImg);
+                        Glide.with(activity).load(uri).placeholder(R.drawable.ic_action_list_my_white).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).into(((PostHolder) holder).cardUserImg);
                     }
                 });
                 ((PostHolder) holder).cardUserImg.setOnClickListener(new View.OnClickListener() {
