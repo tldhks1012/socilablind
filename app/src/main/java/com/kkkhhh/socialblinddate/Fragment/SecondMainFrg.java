@@ -116,12 +116,12 @@ public class SecondMainFrg extends Fragment {
 
                     }
                     //PostAdapter 참조
-                    mAdapter = new PostAdapter(postList, getActivity());
+                    mAdapter = new PostAdapter(postList, getActivity(),progressView);
 
                     //RecycleView 어댑터 세팅
                     recyclerView.setAdapter(mAdapter);
 
-                    progressView.setVisibility(View.INVISIBLE);
+
 
                     recyclerView.setVisibility(View.VISIBLE);
                     //index 값

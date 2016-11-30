@@ -11,10 +11,13 @@
     </style>
     <style name="BasicButton" parent="Theme.AppCompat.Light">
         <item name="colorControlHighlight">@color/colorPrimaryLittle</item>
-        <item name="colorButtonNormal">@color/colorPrimary</item>
+        <item name="colorButtonNormal">@color/colorPrimaryDark</item>
     </style>
 
-
+    <style name="DefaultButton" parent="Theme.AppCompat.Light">
+        <item name="colorControlHighlight">@color/colorPrimaryDark</item>
+        <item name="colorButtonNormal">@color/colorPrimaryLittle</item>
+    </style>
     <style name="StartTheme" parent="Theme.AppCompat.Light.NoActionBar">
     </style>
         <!-- Customize your theme here. -->

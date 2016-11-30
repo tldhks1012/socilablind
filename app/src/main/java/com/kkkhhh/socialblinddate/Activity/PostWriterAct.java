@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -25,7 +24,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -41,10 +40,9 @@ import com.kkkhhh.socialblinddate.R;
 import com.rey.material.widget.ProgressView;
 import com.soundcloud.android.crop.Crop;
 
-import java.io.BufferedOutputStream;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -91,11 +89,6 @@ public class PostWriterAct extends AppCompatActivity {
     private String updatePostKey,updateImg1;
 
     String _getKey ;
-
-    private static final int PICK_FROM_GALLERY = 0;
-    private static final int RESULT_CROP_IMAGE=1;
-    private Uri mImageCaptureUri;
-    private String imgPath;
 
     private ProgressView progressView;
 
@@ -193,18 +186,26 @@ public class PostWriterAct extends AppCompatActivity {
                     writerTitle.setText(post.title);
                     writerBody.setText(post.body);
                     if(!post.img1.equals("@null")) {
-                        Glide.with(PostWriterAct.this).using(new FirebaseImageLoader()).load(storageRef.child(post.img1)).centerCrop().listener(new RequestListener<StorageReference, GlideDrawable>() {
+                        storageRef.child(post.img1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
-                            public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
-                                progressView.setVisibility(View.INVISIBLE);
-                                return false;
+                            public void onSuccess(Uri uri) {
+                                Glide.with(PostWriterAct.this).load(uri).centerCrop().listener(new RequestListener<Uri, GlideDrawable>() {
+                                    @Override
+                                    public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                        progressView.setVisibility(View.INVISIBLE);
+                                        return false;
+                                    }
+
+                                    @Override
+                                    public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                        progressView.setVisibility(View.INVISIBLE);
+                                        return false;
+                                    }
+                                }).into(writeIv);
                             }
-                            @Override
-                            public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                progressView.setVisibility(View.INVISIBLE);
-                                return false;
-                            }
-                        }).into(writeIv);
+                        });
+
+
                         writerImgCheckArray.set(0, true);
                         updateImg1=post.img1;
                     }else{
@@ -376,7 +377,6 @@ public class PostWriterAct extends AppCompatActivity {
     //이미지 파일을 전송
     private void uploadStorage() {
         _getKey = dataReference.child("posts").push().getKey();
-
         if(updatePostKey==null){
             ImgSet(_getKey);
         }else{

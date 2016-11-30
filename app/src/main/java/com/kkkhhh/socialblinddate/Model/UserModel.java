@@ -3,7 +3,9 @@ package com.kkkhhh.socialblinddate.Model;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Dev1 on 2016-10-28.
@@ -24,6 +26,10 @@ public class UserModel  {
     public String _uImage5;
     public String _uImage6;
     public int _uCoin;
+    public int check;
+    public String tokenValue;
+    public int starCount = 0;
+    public Map<String, Boolean> stars = new HashMap<>();
 
     public UserModel(){
 

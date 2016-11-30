@@ -22,7 +22,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="성별 검색"
+            android:text="성별 선택"
             android:layout_gravity="center"
             android:textColor="@color/colorPrimary"
             android:textSize="15dp"/>
@@ -82,7 +82,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="지역"
+            android:text="지역 선택"
             android:layout_gravity="center"
             android:textColor="@color/colorPrimary"
             android:textSize="15dp"/>
@@ -93,8 +93,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:hint="지역 검색"
+            android:textColorHint="@android:color/white"
             android:textSize="15dp"
-            android:background="@drawable/rect_primary_btn"/>
+            android:textColor="@android:color/white"
+            android:theme="@style/DefaultButton"/>
     </LinearLayout>
 
     <Button

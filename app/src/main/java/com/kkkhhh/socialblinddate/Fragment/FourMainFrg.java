@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,12 +30,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.kkkhhh.socialblinddate.Activity.PostWriterAct;
 import com.kkkhhh.socialblinddate.Activity.WelcomeAct;
+import com.kkkhhh.socialblinddate.Adapter.LikeAdapter;
+import com.kkkhhh.socialblinddate.Adapter.PostAdapter;
 import com.kkkhhh.socialblinddate.Etc.CustomBitmapPool;
+import com.kkkhhh.socialblinddate.Etc.EndlessRecyclerOnScrollListener;
 import com.kkkhhh.socialblinddate.Etc.UserValue;
+import com.kkkhhh.socialblinddate.Model.LikeModel;
+import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
+import com.melnykov.fab.FloatingActionButton;
 import com.rey.material.widget.ProgressView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
@@ -43,18 +55,17 @@ import static android.content.Context.MODE_PRIVATE;
  * A simple {@link Fragment} subclass.
  */
 public class FourMainFrg extends Fragment {
-    private FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
-    private DatabaseReference mDatabaseRef = mFirebaseDatabase.getReference();
-    private FirebaseAuth mFireBaseAuth = FirebaseAuth.getInstance();
-    private FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
-    private StorageReference mStoreRef = firebaseStorage.getReference();
-    private ImageView profileImg;
-    private TextView nickName, coin;
-    private String uID;
+    private DatabaseReference mDatabase;
+    private FirebaseAuth fireAuth = FirebaseAuth.getInstance();
+    private RecyclerView recyclerView;
     private ProgressView progressView;
-    private ScrollView scrollView;
-    private RequestManager mGlideRequestManager;
-    private FrameLayout logoutBtn;
+    private List<LikeModel> likeList;
+    private LikeAdapter mAdapter;
+    private TextView noPost;
+    private LinearLayoutManager mManager;
+    private int index = 0;
+    private int lastPosition = 10;
+    private static int current_page = 1;
 
 
     public FourMainFrg() {
@@ -67,71 +78,109 @@ public class FourMainFrg extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_four_main, container, false);
-        init(rootView);
+        _init(rootView);
         return rootView;
     }
+    private void _init(View view){
+        recyclerView = (RecyclerView) view.findViewById(R.id.rv_recycler_view);
+        recyclerView.setHasFixedSize(true);
+        progressView = (ProgressView) view.findViewById(R.id.progressview);
+        mDatabase= FirebaseDatabase.getInstance().getReference();
+        likeList = new ArrayList<LikeModel>();
+        noPost=(TextView)view.findViewById(R.id.no_post);
+    }
 
-    private void init(View view) {
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        mGlideRequestManager=Glide.with(this);
+        mManager = new LinearLayoutManager(getActivity());
+        mManager.setReverseLayout(false);
+        mManager.setStackFromEnd(false);
+        recyclerView.setLayoutManager(mManager);
+        String uID=fireAuth.getCurrentUser().getUid();
+        _initReference(mDatabase.child("like").child(uID));
 
-        profileImg = (ImageView) view.findViewById(R.id.frg_four_profile_img);
-        nickName = (TextView) view.findViewById(R.id.frg_four_nickname);
-        coin=(TextView)view.findViewById(R.id.frg_four_coin);
-        progressView = (ProgressView) view.findViewById(R.id.frg_four_progress);
-        logoutBtn=(FrameLayout)view.findViewById(R.id.logout_btn);
-        scrollView = (ScrollView) view.findViewById(R.id.frg_four_scroll);
-        scrollView.setVisibility(View.GONE);
-        uID = mFireBaseAuth.getCurrentUser().getUid();
+    }
+    private void _initReference(final DatabaseReference databaseReference){
 
-
-        ValueEventListener profileImgListener = new ValueEventListener() {
+        databaseReference.orderByChild("stump").limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot != null) {
-                    final UserModel userModel = dataSnapshot.getValue(UserModel.class);
-                    mGlideRequestManager.using(new FirebaseImageLoader()).load(mStoreRef.child(userModel._uImage1)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).listener(new RequestListener<StorageReference, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            nickName.setText(userModel._uNickname);
-                            coin.setText("Coin : " +userModel._uCoin);
-                            scrollView.setVisibility(View.VISIBLE);
-                            progressView.setVisibility(View.GONE);
-                            return false;
-                        }
+                if(dataSnapshot.getValue()==null){
+                    noPost.setVisibility(View.VISIBLE);
+                    progressView.setVisibility(View.INVISIBLE);
+                    recyclerView.setVisibility(View.INVISIBLE);
+                }else {
 
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            nickName.setText(userModel._uNickname);
-                            coin.setText("Coin : " +userModel._uCoin);
-                            scrollView.setVisibility(View.VISIBLE);
-                            progressView.setVisibility(View.GONE);
-                            return false;
-                        }
-                    }).into(profileImg);
+                    noPost.setVisibility(View.GONE);
+                    //초기에 리스트를 초기화
+                    likeList.clear();
 
+                    //for문을 돌려 리스트 값만큼 추가
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        LikeModel likeModel = postSnapshot.getValue(LikeModel.class);
+
+                        likeList.add(likeModel);
+
+                    }
+                    //PostAdapter 참조
+                    mAdapter = new LikeAdapter(likeList, getActivity());
+
+                    //RecycleView 어댑터 세팅
+                    recyclerView.setAdapter(mAdapter);
+
+                    progressView.setVisibility(View.INVISIBLE);
+
+                    recyclerView.setVisibility(View.VISIBLE);
+                    //index 값
+                    index = likeList.size() - 1;
+
+                    recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mManager) {
+                        @Override
+                        public void onLoadMore(int currentPage) {
+                            progressView.setVisibility(View.VISIBLE);
+                            loadPaging(databaseReference,current_page);
+                        }
+                    });
                 }
+
+
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        };
-        DatabaseReference userImgRef = mDatabaseRef.child("users").child(uID);
-        userImgRef.keepSynced(true);
-        userImgRef.addListenerForSingleValueEvent(profileImgListener);
+        });
+    }
+    private void loadPaging(DatabaseReference dbRef,int current_page) {
 
-        logoutBtn.setOnClickListener(new View.OnClickListener() {
+
+        dbRef.orderByChild("stump").startAt(likeList.get(index).stump).limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                Intent intent=new Intent(getActivity(), WelcomeAct.class);
-                startActivity(intent);
-                getActivity().finish();
-                SharedPreferences.Editor preferences = getActivity().getSharedPreferences(UserValue.SHARED_NAME, MODE_PRIVATE).edit();
-                preferences.clear();
-                preferences.commit();
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //for문을 돌려 리스트 값만큼 추가
+                likeList.remove(index);
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    LikeModel likeModel = postSnapshot.getValue(LikeModel.class);
+
+                    likeList.add(likeModel);
+
+                }
+
+
+                mAdapter.notifyDataSetChanged();
+                index = likeList.size() - 1;
+
+
+                //리스트뷰 애니메이션 효과
+                progressView.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }

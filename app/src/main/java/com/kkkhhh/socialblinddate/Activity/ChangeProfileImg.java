@@ -1,14 +1,9 @@
 package com.kkkhhh.socialblinddate.Activity;
 
 import android.app.ProgressDialog;
-import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
@@ -24,7 +19,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -34,23 +28,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
-import com.kkkhhh.socialblinddate.Etc.CustomBitmapPool;
 import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
 import com.soundcloud.android.crop.Crop;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
-
-public class SignImageAct extends AppCompatActivity {
+public class ChangeProfileImg extends AppCompatActivity {
     private ImageView
             sign_img1 = null,
             sign_img2 = null,
@@ -73,7 +63,7 @@ public class SignImageAct extends AppCompatActivity {
             sign_img5_str,
             sign_img6_str;
 
-    private  ArrayList<Boolean> signImgCheckArray = new ArrayList();
+    private ArrayList<Boolean> signImgCheckArray = new ArrayList();
 
     private ArrayList<ImageView> signImgArray = new ArrayList();
 
@@ -83,9 +73,7 @@ public class SignImageAct extends AppCompatActivity {
 
     private Button nextBtn;
 
-    private StorageReference storageRef =FirebaseStorage.getInstance().getReference();
-
-
+    private StorageReference storageRef = FirebaseStorage.getInstance().getReference();
 
     private FirebaseDatabase mFireDB=FirebaseDatabase.getInstance();
     private DatabaseReference dbRef=mFireDB.getReference().getRoot();
@@ -100,18 +88,16 @@ public class SignImageAct extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
-
-    private static final int PICK_FROM_GALLERY = 0;
+    private static long ONE_MEGABYTE = 1024 * 1024;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_image);
+        setContentView(R.layout.activity_change_profile_img);
         init();
     }
-//////초기 내용 설정
-    private void init() {
+    private void init(){
         sign_img1 = (ImageView) findViewById(R.id.sign_img1);
         signImgArray.add(sign_img1);
         sign_img2 = (ImageView) findViewById(R.id.sign_img2);
@@ -131,33 +117,150 @@ public class SignImageAct extends AppCompatActivity {
         signImgCheckArray.add(sign_img4_check);
         signImgCheckArray.add(sign_img5_check);
         signImgCheckArray.add(sign_img6_check);
-
-        progressDialog=new ProgressDialog(SignImageAct.this);
-
-        mGlideRequestManager=Glide.with(getApplicationContext());
-
-
-
+        mGlideRequestManager=Glide.with(this);
 
         nextBtn=(Button)findViewById(R.id.sign_img_next_btn);
 
-        imgInit();
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(signImgCheckArray.get(0)==false) {
-                    Toast.makeText(SignImageAct.this,"대표사진을 등록해주세요",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ChangeProfileImg.this,"대표사진을 등록해주세요",Toast.LENGTH_SHORT).show();
                 }else{
                     alertDialog();
                 }
             }
         });
+        IntentInit();
 
     }
 
+    private void IntentInit(){
+        dbRef.child("users").child(getUid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue()!=null) {
+                    final UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                    if (!userModel._uImage1.equals("@null")) {
+                        sign_img1.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                storageRef.child(userModel._uImage1).getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                    @Override
+                                    public void onSuccess(byte[] bytes) {
+                                        mGlideRequestManager.load(bytes).centerCrop().
+                                                crossFade(1000).into(sign_img1);
+                                        signImgCheckArray.set(0,true);
+                                        String getByteString = Base64.encodeToString(bytes, 0);
+                                        fileArray[0] = getByteString;
+                                    }
+                                });
 
+                            }
+                        });
 
-    //////이미지 버튼 클릭
+                    }
+                    if (!userModel._uImage2.equals("@null")) {
+                        sign_img2.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                storageRef.child(userModel._uImage2).getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                    @Override
+                                    public void onSuccess(byte[] bytes) {
+                                        mGlideRequestManager.load(bytes).centerCrop().
+                                                crossFade(1000).into(sign_img2);
+                                        signImgCheckArray.set(1,true);
+                                        String getByteString = Base64.encodeToString(bytes, 0);
+                                        fileArray[1] = getByteString;
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+                    if (!userModel._uImage3.equals("@null")) {
+                        sign_img3.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                storageRef.child(userModel._uImage3).getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                    @Override
+                                    public void onSuccess(byte[] bytes) {
+                                        mGlideRequestManager.load(bytes).centerCrop().
+                                                crossFade(1000).into(sign_img3);
+                                        signImgCheckArray.set(2,true);
+                                        String getByteString = Base64.encodeToString(bytes, 0);
+                                        fileArray[2] = getByteString;
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+                    if (!userModel._uImage4.equals("@null")) {
+                        sign_img4.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                storageRef.child(userModel._uImage4).getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                    @Override
+                                    public void onSuccess(byte[] bytes) {
+                                        mGlideRequestManager.load(bytes).centerCrop().
+                                                crossFade(1000).into(sign_img4);
+                                        signImgCheckArray.set(3,true);
+                                        String getByteString = Base64.encodeToString(bytes, 0);
+                                        fileArray[3] = getByteString;
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+                    if (!userModel._uImage5.equals("@null")) {
+                        sign_img5.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                storageRef.child(userModel._uImage5).getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                    @Override
+                                    public void onSuccess(byte[] bytes) {
+                                        mGlideRequestManager.load(bytes).centerCrop().
+                                                crossFade(1000).into(sign_img5);
+                                        signImgCheckArray.set(4,true);
+                                        String getByteString = Base64.encodeToString(bytes, 0);
+                                        fileArray[4] = getByteString;
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+                    if (!userModel._uImage6.equals("@null")) {
+                        sign_img6.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                storageRef.child(userModel._uImage6).getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                    @Override
+                                    public void onSuccess(byte[] bytes) {
+                                        mGlideRequestManager.load(bytes).centerCrop().
+                                                crossFade(1000).into(sign_img6);
+                                        signImgCheckArray.set(5,true);
+                                        String getByteString = Base64.encodeToString(bytes, 0);
+                                        fileArray[5] = getByteString;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    imgInit();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     private void imgInit() {
         for (int index = 0; index < signImgArray.size(); index++) {
             imgSelect(signImgArray.get(index), index);
@@ -249,7 +352,6 @@ public class SignImageAct extends AppCompatActivity {
                         break;
                     }
                 }
-
             }
         });
 
@@ -259,60 +361,59 @@ public class SignImageAct extends AppCompatActivity {
     }
 
     //다음화면 버튼
-private void storageUploadEvent() {
-if(signImgStrArray.size()>0){
-    signImgStrArray.clear();
-}
-    //fileArray 데이터 값을 이미지 ArrayList로 추출
-    for (int index = 0; index < 6; index++) {
-        if (fileArray[index] != null) {
-            signImgStrArray.add(fileArray[index]);
-        }else{
-            signImgStrArray.add(null);
+    private void storageUploadEvent() {
+       /* if(signImgStrArray.size()>0){
+            signImgStrArray.clear();
+        }*/
+        //fileArray 데이터 값을 이미지 ArrayList로 추출
+        for (int index = 0; index < 6; index++) {
+            if (fileArray[index] != null) {
+                signImgStrArray.add(fileArray[index]);
+            }else{
+                signImgStrArray.add(null);
+            }
         }
-        int size =signImgStrArray.size();
-    }
-    ///
-    signImgWriter(signImgStrArray);
+        ///
+        signImgWriter(signImgStrArray);
 
-}
+    }
 
     //이미지 ArrayList에 내용이 있으면 입력 없으면 @null로 변환
     private void signImgWriter(List imgArray){
-            if (imgArray.get(0) != null) {
-                sign_img1_str = imgArray.get(0).toString();
-            }else {
-                sign_img1_str ="@null";
-            }
-            if (imgArray.get(1) != null) {
-                sign_img2_str = imgArray.get(1).toString();
-            }else {
-                sign_img2_str ="@null";
-            }
-            if (imgArray.get(2) != null) {
-                sign_img3_str = imgArray.get(2).toString();
-            }else {
-                sign_img3_str ="@null";
-            }
-            if (imgArray.get(3) != null) {
-                sign_img4_str = imgArray.get(3).toString();
-            }else {
-                sign_img4_str ="@null";
-            }
-            if (imgArray.get(4) != null) {
-                sign_img5_str = imgArray.get(4).toString();
-            }else {
-                sign_img5_str ="@null";
-            }
-            if (imgArray.get(5) != null) {
-                sign_img6_str = imgArray.get(5).toString();
-            }else {
-                sign_img6_str ="@null";
-            }
-
-
-             uploadStorage();
+        if (imgArray.get(0) != null) {
+            sign_img1_str = imgArray.get(0).toString();
+        }else {
+            sign_img1_str ="@null";
         }
+        if (imgArray.get(1) != null) {
+            sign_img2_str = imgArray.get(1).toString();
+        }else {
+            sign_img2_str ="@null";
+        }
+        if (imgArray.get(2) != null) {
+            sign_img3_str = imgArray.get(2).toString();
+        }else {
+            sign_img3_str ="@null";
+        }
+        if (imgArray.get(3) != null) {
+            sign_img4_str = imgArray.get(3).toString();
+        }else {
+            sign_img4_str ="@null";
+        }
+        if (imgArray.get(4) != null) {
+            sign_img5_str = imgArray.get(4).toString();
+        }else {
+            sign_img5_str ="@null";
+        }
+        if (imgArray.get(5) != null) {
+            sign_img6_str = imgArray.get(5).toString();
+        }else {
+            sign_img6_str ="@null";
+        }
+
+
+        uploadStorage();
+    }
     //이미지 파일을 전송
     private void uploadStorage(){
         if(sign_img1_str=="@null") {
@@ -369,8 +470,6 @@ if(signImgStrArray.size()>0){
         DatabaseReference userImgRef=dbRef.child("users").child(getUid);
 
         //check 값
-        userImgRef.child("check").setValue(3);
-        userImgRef.child("_uCoin").setValue(500);
         userImgRef.child("_uImage1").setValue(sign_img1_str);
         userImgRef.child("_uImage2").setValue(sign_img2_str);
         userImgRef.child("_uImage3").setValue(sign_img3_str);
@@ -382,30 +481,11 @@ if(signImgStrArray.size()>0){
                 if(databaseError !=null){
                     Log.d("dataError",databaseError.toString());
                 }else{
-                        progressDialog.cancel();
-                        Intent intent = new Intent(SignImageAct.this, MainAct.class);
-                        startActivity(intent);
-                        Toast.makeText(SignImageAct.this, "회원 가입이 완료 되었습니다", Toast.LENGTH_SHORT).show();
-                        finish();
-                }
-            }
-        });
 
-  /*      UserImg userImg = new UserImg(sign_img1_str,sign_img2_str,sign_img3_str,sign_img4_str,sign_img5_str,sign_img6_str);
-        dbRef.child("users").child(getUid).child("profileImg").setValue(userImg, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if(databaseError !=null){
-                    Log.d("dataError",databaseError.toString());
-                }else{
-                    progressDialog.cancel();
-                    Intent intent = new Intent(SignImageAct.this,MainAct.class);
-                    startActivity(intent);
-                    Toast.makeText(SignImageAct.this,"회원 가입이 완료 되었습니다",Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
-        });*/
+        });
 
     }
 
@@ -416,10 +496,8 @@ if(signImgStrArray.size()>0){
         signPerfectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    progressDialog.setMessage("회원정보를 저장하고 있습니다.");
-                    progressDialog.show();
-                    storageUploadEvent();
-                }
+                storageUploadEvent();
+            }
         });
 
 
@@ -428,7 +506,18 @@ if(signImgStrArray.size()>0){
         AlertDialog dialog=builder.create();
         dialog.show();
     }
+    public byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
 
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
+    }
 
 }
+
 

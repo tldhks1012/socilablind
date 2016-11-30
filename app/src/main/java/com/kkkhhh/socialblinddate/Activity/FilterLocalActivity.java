@@ -78,7 +78,6 @@ public class FilterLocalActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() == null) {
                     noPost.setVisibility(View.VISIBLE);
-                    progressView.setVisibility(View.INVISIBLE);
                     recyclerView.setVisibility(View.INVISIBLE);
                 } else {
                     noPost.setVisibility(View.GONE);
@@ -92,7 +91,7 @@ public class FilterLocalActivity extends AppCompatActivity {
                                 postList.add(postModel);
                     }
                     //PostAdapter 참조
-                    mAdapter = new PostAdapter(postList, FilterLocalActivity.this);
+                    mAdapter = new PostAdapter(postList, FilterLocalActivity.this,progressView);
                     //리스트뷰 애니메이션 효과
                     //RecycleView 어댑터 세팅
                     recyclerView.setAdapter(mAdapter);

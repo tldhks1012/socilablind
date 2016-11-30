@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -44,7 +45,7 @@
         </activity>
         <activity android:name=".Activity.ChatAct">
         </activity>
-        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity"/>
 
         <service android:name=".Fcm.MyFirebaseMessagingService">
             <intent-filter>
@@ -59,7 +60,13 @@
 
         <activity android:name=".Activity.FilterLocalActivity">
         </activity>
+
         <receiver android:name=".Etc.BroadcastD"/>
+
+        <activity android:name=".Activity.ProfileActivity">
+        </activity>
+        <activity android:name=".Activity.ChangeProfileImg">
+        </activity>
     </application>
 
 </manifest>

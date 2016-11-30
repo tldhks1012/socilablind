@@ -19,132 +19,13 @@
             android:textColor="@android:color/white"
             android:textSize="16dp"/>
     </android.support.v7.widget.Toolbar>
-<ScrollView
-    android:id="@+id/frg_four_scroll"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <LinearLayout
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-        <ImageView
-            android:id="@+id/frg_four_profile_img"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"/>
-
-        <TextView
-            android:id="@+id/frg_four_nickname"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            android:textSize="15dp"/>
-
-            <TextView
-                android:id="@+id/frg_four_coin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:textSize="15dp"/>
+            android:layout_height="match_parent"/>
 </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.3dp"
-            android:background="@color/colorGray"
-            android:layout_marginTop="20dp"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-<FrameLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="20dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="프로필 사진 변경"
-            android:textColor="@android:color/black"
-            android:textSize="15dp"/>
-</FrameLayout>
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="알람 설정 변경"
-                android:textColor="@android:color/black"
-                android:textSize="15dp"/>
-        </FrameLayout>
-    </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.3dp"
-            android:background="@color/colorGray"
-            android:layout_marginTop="10dp"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="20dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="코인 충전하기"
-                    android:textColor="@android:color/black"
-                    android:textSize="15dp"/>
-            </FrameLayout>
-        </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.3dp"
-            android:background="@color/colorGray"
-            android:layout_marginTop="10dp"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="20dp"
-                android:id="@+id/logout_btn">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="로그아웃"
-                    android:textColor="@android:color/black"
-                    android:textSize="15dp"/>
-            </FrameLayout>
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="20dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="회원 탈퇴"
-                    android:textColor="@android:color/black"
-                    android:textSize="15dp"/>
-            </FrameLayout>
-        </LinearLayout>
-    </LinearLayout>
-</ScrollView>
-    </LinearLayout>
     <com.rey.material.widget.ProgressView
-        android:id="@+id/frg_four_progress"
+        android:id="@+id/progressview"
         android:layout_width="48dp"
         android:layout_height="48dp"
         app:pv_autostart="true"
@@ -152,4 +33,11 @@
         app:pv_progressStyle="@style/Material.Drawable.CircularProgress"
         app:pv_progressMode="indeterminate"
         android:layout_gravity="center"/>
+    <TextView
+        android:id="@+id/no_post"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="게시글이 없습니다."
+        android:visibility="invisible"/>
 </FrameLayout>

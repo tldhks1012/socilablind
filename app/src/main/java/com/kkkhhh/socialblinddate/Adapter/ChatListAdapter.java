@@ -2,6 +2,7 @@ package com.kkkhhh.socialblinddate.Adapter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -149,26 +151,32 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 ((ViewHolder) holder).age.setText(userModel._uAge);
                 ((ViewHolder) holder).local.setText(userModel._uLocal);
                 ((ViewHolder) holder).gender.setText(userModel._uGender);
-                Glide.with(activity).using(new FirebaseImageLoader()).load(storageReference.child(userModel._uImage1)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
-                        crossFade(1000).listener(new RequestListener<StorageReference, GlideDrawable>() {
+                storageReference.child(userModel._uImage1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
-                    public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
-                        if (progressView.getVisibility() == View.VISIBLE) {
-                            progressView.setVisibility(View.INVISIBLE);
-                            recyclerView.setVisibility(View.VISIBLE);
-                        }
-                        return false;
-                    }
+                    public void onSuccess(Uri uri) {
+                        Glide.with(activity).load(uri).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
+                                crossFade(1000).listener(new RequestListener<Uri, GlideDrawable>() {
+                            @Override
+                            public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                if (progressView.getVisibility() == View.VISIBLE) {
+                                    progressView.setVisibility(View.INVISIBLE);
+                                    recyclerView.setVisibility(View.VISIBLE);
+                                }
+                                return false;
+                            }
 
-                    @Override
-                    public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                        if (progressView.getVisibility() == View.VISIBLE) {
-                            progressView.setVisibility(View.INVISIBLE);
-                            recyclerView.setVisibility(View.VISIBLE);
-                        }
-                        return false;
+                            @Override
+                            public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                if (progressView.getVisibility() == View.VISIBLE) {
+                                    progressView.setVisibility(View.INVISIBLE);
+                                    recyclerView.setVisibility(View.VISIBLE);
+                                }
+                                return false;
+                            }
+                        }).into(((ViewHolder) holder).profileImg);
                     }
-                }).into(((ViewHolder) holder).profileImg);
+                });
+
                 ((ViewHolder) holder).chatView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

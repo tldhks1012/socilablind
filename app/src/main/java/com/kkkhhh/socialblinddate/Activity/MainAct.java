@@ -28,6 +28,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.kkkhhh.socialblinddate.Etc.BroadcastD;
 import com.kkkhhh.socialblinddate.Etc.UserValue;
 import com.kkkhhh.socialblinddate.Fragment.FirstMainFrg;
+import com.kkkhhh.socialblinddate.Fragment.FiveMainFrg;
 import com.kkkhhh.socialblinddate.Fragment.FourMainFrg;
 import com.kkkhhh.socialblinddate.Fragment.SecondMainFrg;
 import com.kkkhhh.socialblinddate.Fragment.ThirdMainFrg;
@@ -37,7 +38,7 @@ import com.kkkhhh.socialblinddate.R;
 import java.util.Calendar;
 
 public class MainAct extends AppCompatActivity implements View.OnClickListener {
-    private ImageView actionPublicList, actionMyList, actionMsg, actionProfile;
+    private ImageView actionPublicList, actionMyList, actionMsg,actionLike, actionProfile;
     private FirebaseAuth mFireAuth = FirebaseAuth.getInstance();
     private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
     private String uID = mFireAuth.getCurrentUser().getUid();
@@ -57,11 +58,13 @@ public class MainAct extends AppCompatActivity implements View.OnClickListener {
         actionPublicList = (ImageView) findViewById(R.id.list_public_img);
         actionMyList = (ImageView) findViewById(R.id.list_my_img);
         actionMsg = (ImageView) findViewById(R.id.msg_img);
+        actionLike=(ImageView)findViewById(R.id.like_img);
         actionProfile = (ImageView) findViewById(R.id.profile_img);
 
         actionPublicList.setOnClickListener(this);
         actionMyList.setOnClickListener(this);
         actionMsg.setOnClickListener(this);
+        actionLike.setOnClickListener(this);
         actionProfile.setOnClickListener(this);
 
         mFragment = new FirstMainFrg();
@@ -160,6 +163,7 @@ public class MainAct extends AppCompatActivity implements View.OnClickListener {
                 actionPublicList.setImageResource(R.drawable.ic_action_list_public_yellow);
                 actionMyList.setImageResource(R.drawable.ic_action_list_my_white);
                 actionMsg.setImageResource(R.drawable.ic_action_msg_white);
+                actionLike.setImageResource(R.drawable.ic_action_like_pull_white);
                 actionProfile.setImageResource(R.drawable.ic_action_profile_white);
                 break;
             }
@@ -168,6 +172,7 @@ public class MainAct extends AppCompatActivity implements View.OnClickListener {
                 actionPublicList.setImageResource(R.drawable.ic_action_list_public_white);
                 actionMyList.setImageResource(R.drawable.ic_action_list_my_yellow);
                 actionMsg.setImageResource(R.drawable.ic_action_msg_white);
+                actionLike.setImageResource(R.drawable.ic_action_like_pull_white);
                 actionProfile.setImageResource(R.drawable.ic_action_profile_white);
                 break;
             }
@@ -176,14 +181,25 @@ public class MainAct extends AppCompatActivity implements View.OnClickListener {
                 actionPublicList.setImageResource(R.drawable.ic_action_list_public_white);
                 actionMyList.setImageResource(R.drawable.ic_action_list_my_white);
                 actionMsg.setImageResource(R.drawable.ic_action_msg_yellow);
+                actionLike.setImageResource(R.drawable.ic_action_like_pull_white);
                 actionProfile.setImageResource(R.drawable.ic_action_profile_white);
                 break;
             }
-            case R.id.profile_img: {
+            case R.id.like_img: {
                 mFragment = new FourMainFrg();
                 actionPublicList.setImageResource(R.drawable.ic_action_list_public_white);
                 actionMyList.setImageResource(R.drawable.ic_action_list_my_white);
                 actionMsg.setImageResource(R.drawable.ic_action_msg_white);
+                actionLike.setImageResource(R.drawable.ic_action_like_pull_yellow);
+                actionProfile.setImageResource(R.drawable.ic_action_profile_white);
+                break;
+            }
+            case R.id.profile_img: {
+                mFragment = new FiveMainFrg();
+                actionPublicList.setImageResource(R.drawable.ic_action_list_public_white);
+                actionMyList.setImageResource(R.drawable.ic_action_list_my_white);
+                actionMsg.setImageResource(R.drawable.ic_action_msg_white);
+                actionLike.setImageResource(R.drawable.ic_action_like_pull_white);
                 actionProfile.setImageResource(R.drawable.ic_action_profile_yellow);
                 break;
             }
