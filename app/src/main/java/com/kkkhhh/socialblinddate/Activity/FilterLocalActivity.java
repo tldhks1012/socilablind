@@ -7,6 +7,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +39,7 @@ public class FilterLocalActivity extends AppCompatActivity {
     private List<Post> postList;
     private LinearLayoutManager mManager;
     private TextView noPost;
+    private RequestManager mGlideRequestManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +71,7 @@ public class FilterLocalActivity extends AppCompatActivity {
         progressView = (ProgressView) findViewById(R.id.progressview);
         noPost = (TextView) findViewById(R.id.no_post);
         postList = new ArrayList<Post>();
+        mGlideRequestManager= Glide.with(FilterLocalActivity.this);
     }
 
     private void _initDataBaseReference(final DatabaseReference dbRef, final int current_page) {
@@ -79,6 +83,7 @@ public class FilterLocalActivity extends AppCompatActivity {
                 if (dataSnapshot.getValue() == null) {
                     noPost.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.INVISIBLE);
+                    progressView.setVisibility(View.INVISIBLE);
                 } else {
                     noPost.setVisibility(View.GONE);
                     //초기에 리스트를 초기화
@@ -91,12 +96,12 @@ public class FilterLocalActivity extends AppCompatActivity {
                                 postList.add(postModel);
                     }
                     //PostAdapter 참조
-                    mAdapter = new PostAdapter(postList, FilterLocalActivity.this,progressView);
+                    mAdapter = new PostAdapter(postList, FilterLocalActivity.this, mGlideRequestManager,progressView,recyclerView);;
                     //리스트뷰 애니메이션 효과
                     //RecycleView 어댑터 세팅
                     recyclerView.setAdapter(mAdapter);
-                    progressView.setVisibility(View.INVISIBLE);
-                    recyclerView.setVisibility(View.VISIBLE);
+              /*      progressView.setVisibility(View.INVISIBLE);
+                    recyclerView.setVisibility(View.VISIBLE);*/
                     index = postList.size() - 1;
 
                     recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mManager) {

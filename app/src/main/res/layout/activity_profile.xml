@@ -54,21 +54,22 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_gravity="center_vertical"
                 android:layout_margin="10dp"
-                android:orientation="vertical">
-
+                android:orientation="horizontal">
                 <ImageView
                     android:id="@+id/profile_img"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"/>
-
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginLeft="10dp">
                 <TextView
                     android:id="@+id/nickname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="10dp"
                     android:textColor="@android:color/white"
                     android:textSize="13dp"/>
 
@@ -103,196 +104,47 @@
                         android:textSize="13dp"
                         />
                 </LinearLayout>
-                <LinearLayout
+                </LinearLayout>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|right"
+                android:orientation="horizontal"
+                android:layout_marginRight="10dp">
+
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
+                    android:text="하트 갯수 :"
+                    android:textColor="@android:color/white"
+                    android:textSize="15dp"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="하트 갯수 :"
-                        android:textColor="@android:color/white"
-                        android:textSize="15dp"/>
-
-                    <TextView
-                        android:id="@+id/likeCount"
-                        android:layout_marginLeft="10dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@android:color/white"
-                        android:textSize="15dp"/>
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/likeCount"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:textSize="15dp"/>
             </LinearLayout>
         </FrameLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@color/colorPrimary"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:orientation="horizontal">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="대표사진"
-                    android:layout_gravity="center"
-                    android:textColor="@color/colorPrimary" />
-                <ImageView
-                    android:id="@+id/sign_img1"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-
-                    android:cropToPadding="true"/>
-
-            </FrameLayout>
-
-            <View
-                android:layout_width="0.1dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimary" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="사진2"
-                    android:layout_gravity="center"
-                    android:textColor="@color/colorPrimary" />
-                <ImageView
-                    android:id="@+id/sign_img2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </FrameLayout>
-
-            <View
-                android:layout_width="0.1dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimary" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="사진3"
-                    android:layout_gravity="center"
-                    android:textColor="@color/colorPrimary" />
-
-                <ImageView
-                    android:id="@+id/sign_img3"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-            </FrameLayout>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@color/colorPrimary" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:orientation="horizontal">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="사진4"
-                    android:layout_gravity="center"
-                    android:textColor="@color/colorPrimary" />
-
-                <ImageView
-                    android:id="@+id/sign_img4"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-
-            </FrameLayout>
-
-            <View
-                android:layout_width="0.1dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimary" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="사진5"
-                    android:layout_gravity="center"
-                    android:textColor="@color/colorPrimary" />
-
-                <ImageView
-                    android:id="@+id/sign_img5"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-
-            </FrameLayout>
-            <View
-                android:layout_width="0.1dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimary" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="사진6"
-                    android:layout_gravity="center"
-                    android:textColor="@color/colorPrimary" />
-
-                <ImageView
-                    android:id="@+id/sign_img6"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-            </FrameLayout>
-        </LinearLayout>
-
-    <View
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="0.1dp"
-        android:background="@color/colorPrimary"/>
+        android:layout_height="match_parent"/>
+    <TextView
+        android:id="@+id/no_post"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="게시글이 없습니다."
+        android:visibility="invisible"/>
+</FrameLayout>
         </LinearLayout>
     <com.rey.material.widget.ProgressView
         android:id="@+id/progressview"

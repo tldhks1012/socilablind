@@ -30,6 +30,7 @@ public class UserModel  {
     public String tokenValue;
     public int starCount = 0;
     public Map<String, Boolean> stars = new HashMap<>();
+    public String updateStamp;
 
     public UserModel(){
 

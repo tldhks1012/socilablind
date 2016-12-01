@@ -19,6 +19,7 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.signature.StringSignature;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +33,7 @@ import com.google.firebase.storage.StorageReference;
 import com.kkkhhh.socialblinddate.Activity.ChangeProfileImg;
 import com.kkkhhh.socialblinddate.Activity.SignImageAct;
 import com.kkkhhh.socialblinddate.Activity.WelcomeAct;
+import com.kkkhhh.socialblinddate.Adapter.LikeAdapter;
 import com.kkkhhh.socialblinddate.Etc.CustomBitmapPool;
 import com.kkkhhh.socialblinddate.Etc.UserValue;
 import com.kkkhhh.socialblinddate.Model.UserModel;
@@ -93,36 +95,12 @@ public class FiveMainFrg extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot != null) {
                     final UserModel userModel = dataSnapshot.getValue(UserModel.class);
-
-                    mStoreRef.child(userModel._uImage1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            mGlideRequestManager.load(uri).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).listener(new RequestListener<Uri, GlideDrawable>() {
-                                @Override
-                                public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
-                                    nickName.setText(userModel._uNickname);
-                                    coin.setText("Coin : " + userModel._uCoin);
-                                    scrollView.setVisibility(View.VISIBLE);
-                                    progressView.setVisibility(View.GONE);
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                    nickName.setText(userModel._uNickname);
-                                    coin.setText("Coin : " + userModel._uCoin);
-                                    scrollView.setVisibility(View.VISIBLE);
-                                    progressView.setVisibility(View.GONE);
-                                    return false;
-                                }
-                            }).into(profileImg);
-
-
-
-                        }
-                    });
-
-
+                    nickName.setText(userModel._uNickname);
+                    coin.setText("Coin : " + userModel._uCoin);
+                    scrollView.setVisibility(View.VISIBLE);
+                    progressView.setVisibility(View.GONE);
+                    mGlideRequestManager.using(new FirebaseImageLoader()).load(mStoreRef.child(userModel._uImage1)).placeholder(R.drawable.ic_action_like_white)
+                            .signature(new StringSignature(userModel.updateStamp)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).into(profileImg);
                 }
             }
 

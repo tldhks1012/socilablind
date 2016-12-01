@@ -13,44 +13,62 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp"
-                android:layout_margin="10dp">
+            android:layout_gravity="center_vertical"
+            android:layout_margin="10dp"
+            android:orientation="horizontal">
             <ImageView
                 android:id="@+id/card_img"
                 android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center_vertical"/>
-
+                android:layout_height="50dp"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginLeft="10dp">
                 <TextView
-                    android:id="@+id/card_local"
+                    android:id="@+id/card_nickname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_gravity="center_vertical"/>
+                    android:textColor="@android:color/black"
+                    android:textSize="13dp"/>
 
-                <TextView
-                    android:id="@+id/card_gender"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"/>
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/card_age"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_gravity="center_vertical"/>
+                    <TextView
+                        android:id="@+id/card_local"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:textSize="13dp"/>
+
+                    <TextView
+                        android:id="@+id/card_gender"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:textSize="13dp"
+                        />
+
+                    <TextView
+                        android:id="@+id/card_age"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="15dp"
+                        android:textColor="@android:color/black"
+                        android:textSize="13dp"
+                        />
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>
+
         <TextView
             android:id="@+id/card_title"
             android:layout_width="match_parent"
@@ -68,43 +86,5 @@
             android:textSize="10dp"
            />
 </LinearLayout>
-
-       <!-- <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-        <FrameLayout
-            android:id="@+id/go_to_post"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:background="@drawable/layout_normal_btn">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="글 내용 보기"
-                android:layout_margin="10dp"/>
-        </FrameLayout>
-            <View
-                android:layout_width="0.3dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorGray"/>
-            <FrameLayout
-                android:id="@+id/go_to_profile"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:background="@drawable/layout_normal_btn">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="프로필 보기"
-                    android:layout_margin="10dp"/>
-            </FrameLayout>
-    </LinearLayout>-->
     </LinearLayout>
 </android.support.v7.widget.CardView>

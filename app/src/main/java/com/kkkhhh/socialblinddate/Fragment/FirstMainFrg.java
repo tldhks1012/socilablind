@@ -282,7 +282,6 @@ public class FirstMainFrg extends Fragment {
                     noPost.setVisibility(View.VISIBLE);
 
 
-
                     recyclerView.setVisibility(View.INVISIBLE);
 
                 } else {
@@ -299,14 +298,12 @@ public class FirstMainFrg extends Fragment {
 
                     }
                     //PostAdapter 참조
-                    mAdapter = new PostAdapter(postList, getActivity(),progressView);
+                    mAdapter = new PostAdapter(postList, getActivity(), mGlideRequestManager,progressView,recyclerView);
 
                     //RecycleView 어댑터 세팅
                     recyclerView.setAdapter(mAdapter);
 
-                    progressView.setVisibility(View.INVISIBLE);
 
-                    recyclerView.setVisibility(View.VISIBLE);
                     //index 값
                     index = postList.size() - 1;
 
@@ -315,7 +312,6 @@ public class FirstMainFrg extends Fragment {
                         public void onLoadMore(int currentPage) {
                             progressView.setVisibility(View.VISIBLE);
                             loadPaging(dbRef, current_page);
-                            progressView.setVisibility(View.INVISIBLE);
                         }
                     });
                 }

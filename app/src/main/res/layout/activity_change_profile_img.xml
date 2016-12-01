@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_sing"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -26,6 +27,7 @@
         </android.support.v7.widget.Toolbar>
 
         <LinearLayout
+            android:id="@+id/change_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -223,25 +225,33 @@
                 android:textSize="12dp"
                 android:layout_marginLeft="10dp"
                 android:text="-메인 사진은 꼭 얼굴이 보이는 사진으로 등록해주세요."/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12dp"
+                android:layout_marginLeft="10dp"
+                android:text="-사진은 최대 6장까지 등록이 가능합니다."/>
         </LinearLayout>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12dp"
-            android:layout_marginLeft="10dp"
-            android:text="-사진은 최대 6장까지 등록이 가능합니다."/>
+
     </LinearLayout>
 
-
+    <com.rey.material.widget.ProgressView
+        android:id="@+id/progressview"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        app:pv_autostart="true"
+        app:pv_circular="true"
+        app:pv_progressMode="indeterminate"
+        app:pv_progressStyle="@style/Material.Drawable.CircularProgress"/>
     <Button
         android:id="@+id/sign_img_next_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_gravity="bottom"
         android:layout_margin="10dp"
         android:text="다음 화면"
         android:textColor="@android:color/white"
         android:textSize="15dp"
         android:background="@drawable/rect_primary_btn"/>
-</RelativeLayout>
+</FrameLayout>

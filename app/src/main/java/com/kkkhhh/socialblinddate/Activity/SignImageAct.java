@@ -370,13 +370,19 @@ if(signImgStrArray.size()>0){
 
         //check 값
         userImgRef.child("check").setValue(3);
+        //500코인 추가
         userImgRef.child("_uCoin").setValue(500);
         userImgRef.child("_uImage1").setValue(sign_img1_str);
         userImgRef.child("_uImage2").setValue(sign_img2_str);
         userImgRef.child("_uImage3").setValue(sign_img3_str);
         userImgRef.child("_uImage4").setValue(sign_img4_str);
         userImgRef.child("_uImage5").setValue(sign_img5_str);
-        userImgRef.child("_uImage6").setValue(sign_img6_str, new DatabaseReference.CompletionListener() {
+        userImgRef.child("_uImage6").setValue(sign_img6_str);
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+        SimpleDateFormat CurDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String stampTime = CurDateFormat.format(date);
+        userImgRef.child("updateStamp").setValue(stampTime, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if(databaseError !=null){
@@ -390,23 +396,6 @@ if(signImgStrArray.size()>0){
                 }
             }
         });
-
-  /*      UserImg userImg = new UserImg(sign_img1_str,sign_img2_str,sign_img3_str,sign_img4_str,sign_img5_str,sign_img6_str);
-        dbRef.child("users").child(getUid).child("profileImg").setValue(userImg, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if(databaseError !=null){
-                    Log.d("dataError",databaseError.toString());
-                }else{
-                    progressDialog.cancel();
-                    Intent intent = new Intent(SignImageAct.this,MainAct.class);
-                    startActivity(intent);
-                    Toast.makeText(SignImageAct.this,"회원 가입이 완료 되었습니다",Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            }
-        });*/
-
     }
 
     private void alertDialog(){

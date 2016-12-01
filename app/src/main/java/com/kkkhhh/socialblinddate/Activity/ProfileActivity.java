@@ -4,6 +4,8 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -16,6 +18,7 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.signature.StringSignature;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -30,7 +33,9 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.kkkhhh.socialblinddate.Adapter.PostAdapter;
 import com.kkkhhh.socialblinddate.Etc.CustomBitmapPool;
+import com.kkkhhh.socialblinddate.Etc.EndlessRecyclerOnScrollListener;
 import com.kkkhhh.socialblinddate.Model.LikeModel;
 import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.Model.UserModel;
@@ -38,12 +43,14 @@ import com.kkkhhh.socialblinddate.R;
 import com.rey.material.widget.ProgressView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 public class ProfileActivity extends AppCompatActivity {
-    private ImageView profileImg,img1,img2,img3,img4,img5,img6;
+    private ImageView profileImg;
     private TextView nickname,local,gender,age,likeCount;
     private String postUid;
     private DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference();
@@ -51,12 +58,24 @@ public class ProfileActivity extends AppCompatActivity {
     private RequestManager mGlideRequestManager;
     private ProgressView progressView;
     private ImageView postLike;
+    private RecyclerView recyclerView;
+    private LinearLayoutManager mManager;
+    private TextView noPost;
+    private FirebaseAuth fireAuth = FirebaseAuth.getInstance();
+    private int index = 0;
+    private int lastPosition = 10;
+    private static int current_page = 1;
+    private PostAdapter mAdapter;
+    private List<Post> postList;
+
+
 
     private FirebaseAuth firebaseAuth=FirebaseAuth.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
         postUid=getIntent().getStringExtra("postUid");
         if(postUid!=null) {
             init();
@@ -65,24 +84,24 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void init(){
         profileImg=(ImageView)findViewById(R.id.profile_img);
-        img1=(ImageView)findViewById(R.id.sign_img1);
-        img2=(ImageView)findViewById(R.id.sign_img2);
-        img3=(ImageView)findViewById(R.id.sign_img3);
-        img4=(ImageView)findViewById(R.id.sign_img4);
-        img5=(ImageView)findViewById(R.id.sign_img5);
-        img6=(ImageView)findViewById(R.id.sign_img6);
-
         nickname=(TextView)findViewById(R.id.nickname);
         local=(TextView)findViewById(R.id.local);
         gender=(TextView)findViewById(R.id.gender);
         age=(TextView)findViewById(R.id.age);
         likeCount=(TextView)findViewById(R.id.likeCount);
-
+        noPost=(TextView)findViewById(R.id.no_post);
         progressView=(ProgressView)findViewById(R.id.progressview);
         mGlideRequestManager= Glide.with(getApplicationContext());
-
         postLike=(ImageView)findViewById(R.id.post_like);
+        recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        mManager = new LinearLayoutManager(ProfileActivity.this);
+        mManager.setReverseLayout(false);
+        mManager.setStackFromEnd(false);
+        recyclerView.setLayoutManager(mManager);
+        postList = new ArrayList<Post>();
         _reference();
+        _initReference(databaseReference.child("user-posts").child(postUid));
 
     }
     private void _reference(){
@@ -95,125 +114,19 @@ public class ProfileActivity extends AppCompatActivity {
                     local.setText(userModel._uLocal);
                     gender.setText(userModel._uGender);
                     age.setText(userModel._uAge);
+                    if(!userModel._uImage1.equals("@null")) {
 
+                        _initProfileImg(userModel._uImage1,userModel.updateStamp);
+
+                    }
                     if(userModel.starCount>=0) {
                         likeCount.setText(String.valueOf(userModel.starCount));
-                    }
-                    if(!userModel._uImage1.equals("@null")){
-                        profileImg.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                storageReference.child(userModel._uImage1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        mGlideRequestManager.load(uri).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
-                                                crossFade(1000).listener(new RequestListener<Uri, GlideDrawable>() {
-                                            @Override
-                                            public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
-                                                progressView.setVisibility(View.INVISIBLE);
-                                                return false;
-                                            }
-
-                                            @Override
-                                            public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                                progressView.setVisibility(View.INVISIBLE);
-                                                return false;
-                                            }
-                                        }).into(profileImg);
-                                    }
-                                });
-
-
-                            }
-                        });
-                        img1.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                storageReference.child(userModel._uImage1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        mGlideRequestManager.load(uri).crossFade(1000).centerCrop().into(img1);
-                                    }
-                                });
-
-                            }
-                        });
-                    }
-                    if(!userModel._uImage2.equals("@null")){
-                        img2.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                storageReference.child(userModel._uImage2).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        mGlideRequestManager.load(uri).crossFade(1000).centerCrop().into(img2);
-                                    }
-                                });
-                            }
-                        });
-
-                    }
-                    if(!userModel._uImage3.equals("@null")){
-                        img3.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                storageReference.child(userModel._uImage3).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        mGlideRequestManager.load(uri).crossFade(1000).centerCrop().into(img3);
-                                    }
-                                });
-                            }
-                        });
-
-                    }
-                    if(!userModel._uImage4.equals("@null")){
-                        img4.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                storageReference.child(userModel._uImage4).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        mGlideRequestManager.load(uri).crossFade(1000).centerCrop().into(img4);
-                                    }
-                                });
-                            }
-                        });
-
-                    }
-                    if(!userModel._uImage5.equals("@null")){
-                        img5.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                storageReference.child(userModel._uImage5).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        mGlideRequestManager.load(uri).crossFade(1000).centerCrop().into(img5);
-                                    }
-                                });
-                            }
-                        });
-
-                    }
-                    if(!userModel._uImage6.equals("@null")){
-                        img6.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                storageReference.child(userModel._uImage6).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        mGlideRequestManager.load(uri).crossFade(1000).centerCrop().into(img6);
-                                    }
-                                });
-                            }
-                        });
                     }
                     if (userModel.stars.containsKey(getUid())) {
                         postLike.setImageResource(R.drawable.ic_action_like_pull_white);
                     } else {
                         postLike.setImageResource(R.drawable.ic_action_like_white);
                     }
-
 
                     postLike.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -229,6 +142,30 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
+            }
+        });
+    }
+
+    private void _initProfileImg(final String imgPath,final String stamp){
+        profileImg.post(new Runnable() {
+            @Override
+            public void run() {
+
+                mGlideRequestManager.using(new FirebaseImageLoader()).load(storageReference.child(imgPath)).signature(new StringSignature(stamp))
+                        .bitmapTransform(new CropCircleTransformation(new CustomBitmapPool()))
+                        .listener(new RequestListener<StorageReference, GlideDrawable>() {
+                            @Override
+                            public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                progressView.setVisibility(View.INVISIBLE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                progressView.setVisibility(View.INVISIBLE);
+                                return false;
+                            }
+                        }).into(profileImg);
             }
         });
     }
@@ -284,6 +221,88 @@ public class ProfileActivity extends AppCompatActivity {
                                    DataSnapshot dataSnapshot) {
                 // Transaction completed
                 Log.d("", "postTransaction:onComplete:" + databaseError);
+            }
+        });
+    }
+    private void _initReference(final DatabaseReference databaseReference){
+
+        databaseReference.orderByChild("stump").limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue()==null){
+                    noPost.setVisibility(View.VISIBLE);
+                    progressView.setVisibility(View.INVISIBLE);
+                    recyclerView.setVisibility(View.INVISIBLE);
+                }else {
+
+                    noPost.setVisibility(View.GONE);
+                    //초기에 리스트를 초기화
+                    postList.clear();
+
+                    //for문을 돌려 리스트 값만큼 추가
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        if(postSnapshot.getValue()!=null) {
+                            Post postModel = postSnapshot.getValue(Post.class);
+                            postList.add(postModel);
+                        }
+                    }
+                    //PostAdapter 참조
+                    mAdapter = new PostAdapter(postList, ProfileActivity.this, mGlideRequestManager,progressView,recyclerView);
+
+                    //RecycleView 어댑터 세팅
+                    recyclerView.setAdapter(mAdapter);
+
+
+
+                  /*  recyclerView.setVisibility(View.VISIBLE);*/
+                    //index 값
+                    index = postList.size() - 1;
+
+                    recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mManager) {
+                        @Override
+                        public void onLoadMore(int currentPage) {
+                            progressView.setVisibility(View.VISIBLE);
+                            loadPaging(databaseReference,current_page);
+                        }
+                    });
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+    private void loadPaging(DatabaseReference dbRef,int current_page) {
+
+
+        dbRef.orderByChild("stump").startAt(postList.get(index).stump).limitToFirst(lastPosition).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //for문을 돌려 리스트 값만큼 추가
+                postList.remove(index);
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Post postModel = postSnapshot.getValue(Post.class);
+
+                    postList.add(postModel);
+
+                }
+
+
+                mAdapter.notifyDataSetChanged();
+                index = postList.size() - 1;
+
+
+                //리스트뷰 애니메이션 효과
+                progressView.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }

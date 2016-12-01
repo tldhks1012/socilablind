@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -30,6 +31,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
+import com.rey.material.widget.ProgressView;
 import com.soundcloud.android.crop.Crop;
 
 import java.io.ByteArrayOutputStream;
@@ -37,7 +39,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ChangeProfileImg extends AppCompatActivity {
@@ -86,7 +90,9 @@ public class ChangeProfileImg extends AppCompatActivity {
 
     private int intentCheck;
 
-    private ProgressDialog progressDialog;
+    private ProgressView progressView;
+
+    private LinearLayout changeView;
 
     private static long ONE_MEGABYTE = 1024 * 1024;
 
@@ -119,6 +125,9 @@ public class ChangeProfileImg extends AppCompatActivity {
         signImgCheckArray.add(sign_img6_check);
         mGlideRequestManager=Glide.with(this);
 
+        progressView=(ProgressView)findViewById(R.id.progressview);
+        changeView=(LinearLayout)findViewById(R.id.change_view);
+
         nextBtn=(Button)findViewById(R.id.sign_img_next_btn);
 
         nextBtn.setOnClickListener(new View.OnClickListener() {
@@ -148,6 +157,8 @@ public class ChangeProfileImg extends AppCompatActivity {
                                 storageRef.child(userModel._uImage1).getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                                     @Override
                                     public void onSuccess(byte[] bytes) {
+                                        progressView.setVisibility(View.INVISIBLE);
+
                                         mGlideRequestManager.load(bytes).centerCrop().
                                                 crossFade(1000).into(sign_img1);
                                         signImgCheckArray.set(0,true);
@@ -475,13 +486,17 @@ public class ChangeProfileImg extends AppCompatActivity {
         userImgRef.child("_uImage3").setValue(sign_img3_str);
         userImgRef.child("_uImage4").setValue(sign_img4_str);
         userImgRef.child("_uImage5").setValue(sign_img5_str);
-        userImgRef.child("_uImage6").setValue(sign_img6_str, new DatabaseReference.CompletionListener() {
+        userImgRef.child("_uImage6").setValue(sign_img6_str);
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+        SimpleDateFormat CurDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String stampTime = CurDateFormat.format(date);
+        userImgRef.child("updateStamp").setValue(stampTime, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if(databaseError !=null){
                     Log.d("dataError",databaseError.toString());
                 }else{
-
                     finish();
                 }
             }

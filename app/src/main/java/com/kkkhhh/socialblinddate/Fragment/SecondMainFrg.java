@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,6 +47,7 @@ public class SecondMainFrg extends Fragment {
     private int lastPosition = 10;
     private static int current_page = 1;
     private FloatingActionButton fab;
+    private RequestManager mGlideRequestManager;
     public SecondMainFrg() {
         // Required empty public constructor
     }
@@ -67,6 +70,7 @@ public class SecondMainFrg extends Fragment {
         postList = new ArrayList<Post>();
         noPost=(TextView)view.findViewById(R.id.no_post);
         fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        mGlideRequestManager= Glide.with(getActivity());
 
     }
     @Override
@@ -116,14 +120,14 @@ public class SecondMainFrg extends Fragment {
 
                     }
                     //PostAdapter 참조
-                    mAdapter = new PostAdapter(postList, getActivity(),progressView);
+                    mAdapter = new PostAdapter(postList, getActivity(), mGlideRequestManager,progressView,recyclerView);
 
                     //RecycleView 어댑터 세팅
                     recyclerView.setAdapter(mAdapter);
 
 
 
-                    recyclerView.setVisibility(View.VISIBLE);
+                  /*  recyclerView.setVisibility(View.VISIBLE);*/
                     //index 값
                     index = postList.size() - 1;
 

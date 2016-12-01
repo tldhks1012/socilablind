@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.signature.StringSignature;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -33,6 +35,7 @@ import com.kkkhhh.socialblinddate.R;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
@@ -45,10 +48,12 @@ public class LikeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private Activity activity;
     private StorageReference storageReference= FirebaseStorage.getInstance().getReference();
     private DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference();
+    private RequestManager mGlideRequestManager;
 
-    public LikeAdapter( List<LikeModel> likeList,Activity activity){
+    public LikeAdapter( List<LikeModel> likeList,Activity activity,RequestManager mGlideRequestManager){
         this.likeList = likeList;
         this.activity=activity;
+        this.mGlideRequestManager=mGlideRequestManager;
 
     }
     @Override
@@ -66,13 +71,8 @@ public class LikeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     if (dataSnapshot.getValue() != null) {
                         UserModel userModel = dataSnapshot.getValue(UserModel.class);
                         ((LikeHolder) holder).cardText.setText(userModel._uNickname +"님이 하트를 보냈습니다.");
-                        storageReference.child(userModel._uImage1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Glide.with(activity).load(uri).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
-                                        crossFade(1000).into(((LikeHolder) holder).cardUserImg);
-                            }
-                        });
+                        mGlideRequestManager.using(new FirebaseImageLoader()).load(storageReference.child(userModel._uImage1)).placeholder(R.drawable.ic_action_like_white)
+                                .signature(new StringSignature(userModel.updateStamp)).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).into(((LikeAdapter.LikeHolder) holder).cardUserImg);
 
                     }
                 }

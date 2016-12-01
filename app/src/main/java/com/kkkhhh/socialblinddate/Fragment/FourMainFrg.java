@@ -66,7 +66,7 @@ public class FourMainFrg extends Fragment {
     private int index = 0;
     private int lastPosition = 10;
     private static int current_page = 1;
-
+    private RequestManager mGlideRequestManager;
 
     public FourMainFrg() {
         // Required empty public constructor
@@ -88,6 +88,7 @@ public class FourMainFrg extends Fragment {
         mDatabase= FirebaseDatabase.getInstance().getReference();
         likeList = new ArrayList<LikeModel>();
         noPost=(TextView)view.findViewById(R.id.no_post);
+        mGlideRequestManager=Glide.with(getActivity());
     }
 
     @Override
@@ -125,7 +126,7 @@ public class FourMainFrg extends Fragment {
 
                     }
                     //PostAdapter 참조
-                    mAdapter = new LikeAdapter(likeList, getActivity());
+                    mAdapter = new LikeAdapter(likeList, getActivity(),mGlideRequestManager);
 
                     //RecycleView 어댑터 세팅
                     recyclerView.setAdapter(mAdapter);

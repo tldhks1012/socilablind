@@ -36,6 +36,7 @@ import com.kkkhhh.socialblinddate.Etc.UserValue;
 import com.kkkhhh.socialblinddate.Model.ChatList;
 
 import com.kkkhhh.socialblinddate.Model.Post;
+import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
 
 import android.widget.LinearLayout;
@@ -49,7 +50,7 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 public class DetailPostAct extends AppCompatActivity {
 
-    private TextView bodyTv, genderTv, ageTv, localTv, noImgTv;
+    private TextView bodyTv,  nicknameTv, noImgTv;
     private ImageView profileIv, detailImgIv;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
@@ -86,12 +87,10 @@ public class DetailPostAct extends AppCompatActivity {
         progressView.setVisibility(View.VISIBLE);
         init();
     }
-
+    //UI 초기값 설정
     private void init() {
         bodyTv = (TextView) findViewById(R.id.detail_post_body);
-        genderTv = (TextView) findViewById(R.id.detail_profile_gender);
-        ageTv = (TextView) findViewById(R.id.detail_profile_age);
-        localTv = (TextView) findViewById(R.id.detail_profile_local);
+        nicknameTv = (TextView) findViewById(R.id.detail_profile_nickname);
         profileIv = (ImageView) findViewById(R.id.detail_profile_img);
         detailImgIv = (ImageView) findViewById(R.id.detail_post_img);
         noImgTv = (TextView) findViewById(R.id.detail_no_img);
@@ -113,11 +112,11 @@ public class DetailPostAct extends AppCompatActivity {
         profileView();
         mGlideRequestManager=Glide.with(getApplicationContext());
     }
-
+//초기 레퍼런스
     private void getData() {
     setDataReference(postsReference);
     }
-
+//초기 레퍼런스
     private void setDataReference(final DatabaseReference dataReference) {
         dataReference.child(postKey).addValueEventListener(new ValueEventListener() {
             @Override
@@ -135,6 +134,22 @@ public class DetailPostAct extends AppCompatActivity {
                             noUidMenu.setVisibility(View.VISIBLE);
                             uIDMenu.setVisibility(View.GONE);
                         }
+
+                        databaseReference.child("users").child(postUid).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if(dataSnapshot.getValue()!=null) {
+                                    UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                                    nicknameTv.setText(userModel._uNickname);
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
 
                         profileIv.post(new Runnable() {
                             @Override
@@ -167,9 +182,6 @@ public class DetailPostAct extends AppCompatActivity {
 
                         bodyTv.setText(post.body);
                         bodyTv.setMovementMethod(new ScrollingMovementMethod());
-                        ageTv.setText(post.age);
-                        genderTv.setText(post.gender);
-                        localTv.setText(post.local);
                         detailImgStr = post.img1;
 
 
@@ -318,19 +330,11 @@ public class DetailPostAct extends AppCompatActivity {
                                             if (chatListValue.partnerID.equals(postUid)) {
                                                 Toast.makeText(getApplicationContext(), "개설된 채팅방이 있습니다", Toast.LENGTH_SHORT).show();
                                             } else {
-                                                if (uCoin > 300) {
-                                                    messageUpload(userID, editor, uCoin);
-                                                }else{
-                                                    Toast.makeText(getApplicationContext(), "코인이 부족합니다", Toast.LENGTH_SHORT).show();
-                                                }
+                                                noCoinMessage(uCoin,userID,editor);
                                             }
                                         }
                                     } else {
-                                        if (uCoin > 300) {
-                                            messageUpload(userID, editor, uCoin);
-                                        }else{
-                                            Toast.makeText(getApplicationContext(), "코인이 부족합니다", Toast.LENGTH_SHORT).show();
-                                        }
+                                        noCoinMessage(uCoin,userID,editor);
                                     }
                                 }
 
@@ -347,6 +351,14 @@ public class DetailPostAct extends AppCompatActivity {
                 });
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    private void noCoinMessage(int uCoin, String userID, SharedPreferences.Editor editor){
+        if (uCoin > 300) {
+            messageUpload(userID, editor, uCoin);
+        }else{
+            Toast.makeText(getApplicationContext(), "코인이 부족합니다", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void messageUpload(final String userID, final SharedPreferences.Editor editor, final int uCoin) {
