@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="소셜 소개팅"
+            android:text="모든 타임라인"
             android:textColor="@android:color/white"
             android:textSize="16dp"/>
         <LinearLayout

@@ -10,9 +10,17 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.signature.StringSignature;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -20,7 +28,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.kkkhhh.socialblinddate.Adapter.ChatAdapter;
+import com.kkkhhh.socialblinddate.Adapter.PostAdapter;
+import com.kkkhhh.socialblinddate.Etc.CustomBitmapPool;
 import com.kkkhhh.socialblinddate.Model.ChatList;
 import com.kkkhhh.socialblinddate.Model.ChatModel;
 import com.kkkhhh.socialblinddate.Model.UserModel;
@@ -33,13 +45,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
+
 public class ChatAct extends AppCompatActivity {
     private TextView nameTv;
+    private ImageView profileIv;
     private EditText chatEd;
     private FrameLayout sendBtn;
     private String chatKey, chatStr, uID;
     private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-    private DatabaseReference userReference;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private List<ChatModel> chatModelList = new ArrayList<ChatModel>();
     private RecyclerView recyclerView;
@@ -48,6 +62,8 @@ public class ChatAct extends AppCompatActivity {
     private ProgressView progressView;
     private String partnerID,userID;
     private ImageButton chatRemove;
+    private RequestManager mGlideRequestManager;
+    private StorageReference storageReference =FirebaseStorage.getInstance().getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +78,7 @@ public class ChatAct extends AppCompatActivity {
         sendBtn = (FrameLayout) findViewById(R.id.chat_send);
         progressView=(ProgressView)findViewById(R.id.progressview);
         chatRemove=(ImageButton)findViewById(R.id.chat_remove);
+        profileIv=(ImageView)findViewById(R.id.chat_profile_img);
         uID = firebaseAuth.getCurrentUser().getUid();
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -69,7 +86,7 @@ public class ChatAct extends AppCompatActivity {
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(mManager);
-
+        mGlideRequestManager= Glide.with(ChatAct.this);
         _initIntent();
         sendMessage();
         receiveMessage();
@@ -152,9 +169,24 @@ public class ChatAct extends AppCompatActivity {
         databaseReference.child("users").child(uID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                UserModel userModel = dataSnapshot.getValue(UserModel.class);
-                nameTv.setText(userModel._uNickname + "님과의 대화");
-                progressViewState();
+                final UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                mGlideRequestManager.using(new FirebaseImageLoader()).load(storageReference.child(userModel._uImage1)).signature(new StringSignature(userModel.updateStamp)).placeholder(R.drawable.ic_action_like_white)
+                        .bitmapTransform(new CropCircleTransformation(new CustomBitmapPool()))
+                        .listener(new RequestListener<StorageReference, GlideDrawable>() {
+                            @Override
+                            public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                nameTv.setText(userModel._uNickname );
+                                progressViewState();
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                nameTv.setText(userModel._uNickname );
+                                progressViewState();
+                                return false;
+                            }
+                        }).into(profileIv);
             }
 
             @Override

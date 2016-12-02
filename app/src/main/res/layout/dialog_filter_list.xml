@@ -1,102 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:background="@android:color/white"
+              android:orientation="vertical">
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:text="지역 선택"
-            android:textColor="@android:color/white"
-            android:layout_margin="10dp"/>
+            android:textColor="@android:color/white"/>
     </FrameLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:orientation="vertical">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="성별 선택"
             android:layout_gravity="center"
+            android:text="성별 선택"
             android:textColor="@color/colorPrimary"
             android:textSize="15dp"/>
+
         <LinearLayout
-            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:orientation="vertical">
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.3dp"
                 android:background="@color/colorGray"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-                <FrameLayout
-                    android:id="@+id/frg_first_man_btn"
+                <com.andexert.library.RippleView
+                    android:id="@+id/filter_dialog_man_ripple"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    app:rv_centered="true">
+                <FrameLayout
+                    android:id="@+id/filter_dialog_man_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorAccent"
                     android:clickable="true">
                     <TextView
-                        android:id="@+id/frg_first_man_txt"
+                        android:id="@+id/filter_dialog_man_txt"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="남자"
-                        android:layout_margin="10dp"/>
+                        android:layout_margin="10dp"
+                        android:text="남자"/>
                 </FrameLayout>
-                <FrameLayout
-                    android:id="@+id/frg_first_woman_btn"
+                </com.andexert.library.RippleView>
+                <com.andexert.library.RippleView
+                    android:id="@+id/filter_dialog_woman_ripple"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    app:rv_centered="true">
+
+                <FrameLayout
+                    android:id="@+id/filter_dialog_woman_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorAccent"
                     android:clickable="true">
+
                     <TextView
-                        android:id="@+id/frg_first_woman_txt"
+                        android:id="@+id/filter_dialog_woman_txt"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="여자"
-                        android:layout_margin="10dp"/>
+                        android:layout_margin="10dp"
+                        android:text="여자"/>
                 </FrameLayout>
+                </com.andexert.library.RippleView>
             </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.3dp"
                 android:background="@color/colorGray"/>
         </LinearLayout>
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:orientation="vertical">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="지역 선택"
             android:layout_gravity="center"
+            android:text="지역 선택"
             android:textColor="@color/colorPrimary"
             android:textSize="15dp"/>
-
+        <com.andexert.library.RippleView
+            android:id="@+id/filter_dialog_local_ripple"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:rv_centered="true">
         <Button
             android:id="@+id/filter_dialog_local"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:hint="지역 검색"
+            android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"
             android:textSize="15dp"
-            android:textColor="@android:color/white"
-            android:theme="@style/DefaultButton"/>
+            android:background="@color/colorPrimary"/>
+        </com.andexert.library.RippleView>
     </LinearLayout>
 
     <Button

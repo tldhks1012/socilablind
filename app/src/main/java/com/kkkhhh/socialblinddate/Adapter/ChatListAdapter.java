@@ -97,9 +97,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public ViewHolder(View itemView) {
             super(itemView);
             profileImg = (ImageView) itemView.findViewById(R.id.chat_list_profile_img);
-            local = (TextView) itemView.findViewById(R.id.chat_list_local);
             gender = (TextView) itemView.findViewById(R.id.chat_list_gender);
-            age = (TextView) itemView.findViewById(R.id.chat_list_age);
             chatView = (CardView) itemView.findViewById(R.id.chat_list_view);
             lastChat=(TextView)itemView.findViewById(R.id.chat_list_last_body);
             timeStamp=(TextView)itemView.findViewById(R.id.chat_list_timestamp);
@@ -148,9 +146,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 UserModel userModel = dataSnapshot.getValue(UserModel.class);
-                ((ViewHolder) holder).age.setText(userModel._uAge);
-                ((ViewHolder) holder).local.setText(userModel._uLocal);
-                ((ViewHolder) holder).gender.setText(userModel._uGender);
+                ((ViewHolder) holder).gender.setText(userModel._uNickname);
                 storageReference.child(userModel._uImage1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {

@@ -38,17 +38,18 @@ public class FilterLocalActivity extends AppCompatActivity {
     private static int current_page = 1;
     private List<Post> postList;
     private LinearLayoutManager mManager;
-    private TextView noPost;
+    private TextView noPost,title;
     private RequestManager mGlideRequestManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter_local);
-
+        title=(TextView)findViewById(R.id.title);
         if (getIntent() != null) {
             local = getIntent().getStringExtra("local");
             gender = getIntent().getStringExtra("gender");
+            title.setText(local+"지역 "+gender+"의 타임라인");
         }
 
         DataBaseFiltering dataBaseFiltering = new DataBaseFiltering();
@@ -70,6 +71,7 @@ public class FilterLocalActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(mManager);
         progressView = (ProgressView) findViewById(R.id.progressview);
         noPost = (TextView) findViewById(R.id.no_post);
+
         postList = new ArrayList<Post>();
         mGlideRequestManager= Glide.with(FilterLocalActivity.this);
     }

@@ -103,72 +103,74 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //        if (holder instanceof HeaderViewHolder) {
 //
 //        } else if (holder instanceof PostHolder) {
-            final Post post = postList.get(position);
-            if (post.userProfileImg != null) {
-                ((PostHolder) holder).cardUserGender.setText(post.gender);
-                ((PostHolder) holder).cardUserAge.setText(post.age);
-                ((PostHolder) holder).cardUserLocal.setText(post.local);
-                ((PostHolder) holder).cardPostTitle.setText(post.title);
+        final Post post = postList.get(position);
+        if (post.userProfileImg != null) {
+            ((PostHolder) holder).cardUserGender.setText(post.gender);
+            ((PostHolder) holder).cardUserAge.setText(post.age);
+            ((PostHolder) holder).cardUserLocal.setText(post.local);
+            ((PostHolder) holder).cardPostTitle.setText(post.title);
 
 
+            databaseReference.child("users").child(post.uid).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue() != null) {
+                        UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                        ((PostHolder) holder).cardNickname.setText(userModel._uNickname);
 
-                databaseReference.child("users").child(post.uid).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.getValue()!=null){
-                            UserModel userModel=dataSnapshot.getValue(UserModel.class);
-                            ((PostHolder) holder).cardNickname.setText(userModel._uNickname);
-                            mGlideRequestManager.using(new FirebaseImageLoader()).load(storageReference.child(userModel._uImage1)).signature(new StringSignature(userModel.updateStamp)).placeholder(R.drawable.ic_action_like_white)
-                                    .bitmapTransform(new CropCircleTransformation(new CustomBitmapPool()))
-                                    .listener(new RequestListener<StorageReference, GlideDrawable>() {
-                                        @Override
-                                        public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
-                                            progressView.setVisibility(View.INVISIBLE);
-                                            recyclerView.setVisibility(View.VISIBLE);
-                                            return false;
-                                        }
+                        mGlideRequestManager.using(new FirebaseImageLoader()).load(storageReference.child(userModel._uImage1))
+                                .signature(new StringSignature(userModel.updateStamp))
+                                .placeholder(R.drawable.ic_action_like_white)
+                                .bitmapTransform(new CropCircleTransformation(new CustomBitmapPool()))
+                                .listener(new RequestListener<StorageReference, GlideDrawable>() {
+                                    @Override
+                                    public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                        progressView.setVisibility(View.INVISIBLE);
+                                        recyclerView.setVisibility(View.VISIBLE);
+                                        return false;
+                                    }
 
-                                        @Override
-                                        public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                            progressView.setVisibility(View.INVISIBLE);
-                                            recyclerView.setVisibility(View.VISIBLE);
-                                            return false;
-                                        }
-                                    }).into(((PostHolder) holder).cardUserImg);
-                        }
+                                    @Override
+                                    public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                        progressView.setVisibility(View.INVISIBLE);
+                                        recyclerView.setVisibility(View.VISIBLE);
+                                        return false;
+                                    }
+                                }).into(((PostHolder) holder).cardUserImg);
                     }
+                }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-                    }
-                });
+                }
+            });
 
-                ((PostHolder) holder).cardUserImg.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent=new Intent(activity, ProfileActivity.class);
-                        intent.putExtra("postUid",post.uid);
-                        activity.startActivity(intent);
-                    }
-                });
+            ((PostHolder) holder).cardUserImg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(activity, ProfileActivity.class);
+                    intent.putExtra("postUid", post.uid);
+                    activity.startActivity(intent);
+                }
+            });
 
 
-                String stringDate = post.stampTime;
-                String getDate = _nowTime(stringDate);
-                ((PostHolder) holder).cardTimeStamp.setText(getDate);
-                ((PostHolder) holder).cardView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(activity, DetailPostAct.class);
-                        intent.putExtra("gender", post.gender);
-                        intent.putExtra("postKey", post.postKey);
-                        intent.putExtra("local", post.local);
-                        activity.startActivity(intent);
+            String stringDate = post.stampTime;
+            String getDate = _nowTime(stringDate);
+            ((PostHolder) holder).cardTimeStamp.setText(getDate);
+            ((PostHolder) holder).cardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(activity, DetailPostAct.class);
+                    intent.putExtra("gender", post.gender);
+                    intent.putExtra("postKey", post.postKey);
+                    intent.putExtra("local", post.local);
+                    activity.startActivity(intent);
 
-                    }
-                });
-            }
+                }
+            });
+        }
 //        }else if (holder instanceof BottomViewHolder) {
 //
 //        }

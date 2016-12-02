@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.andexert.library.RippleView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 
@@ -51,6 +52,8 @@ import com.kkkhhh.socialblinddate.R;
 
 import com.melnykov.fab.FloatingActionButton;
 
+
+import com.rey.material.app.BottomSheetDialog;
 import com.rey.material.widget.ProgressView;
 
 
@@ -147,41 +150,6 @@ public class FirstMainFrg extends Fragment {
     }
 
 
-    private void genderBtnClick(final FrameLayout btn, final TextView womanText, final TextView manText) {
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (btn.getId()) {
-                    case R.id.frg_first_man_btn:
-                        manTextChange(womanText, manText);
-                        break;
-
-                    case R.id.frg_first_woman_btn:
-                        womanTextChange(womanText, manText);
-                        break;
-                }
-            }
-        });
-
-    }
-
-    private void manTextChange(TextView womanText, TextView manText) {
-        genderCheck = "남자";
-        womanText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
-        womanText.setTextColor(Color.GRAY);
-        manText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-        manText.setTextColor(Color.BLACK);
-    }
-
-    private void womanTextChange(TextView womanText, TextView manText) {
-        genderCheck = "여자";
-        womanText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-        womanText.setTextColor(Color.BLACK);
-        manText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
-        manText.setTextColor(Color.GRAY);
-    }
-
-
     private void alertDialog() {
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -190,27 +158,56 @@ public class FirstMainFrg extends Fragment {
         final View dialogView = inflater.inflate(R.layout.dialog_filter_list, null);
         //필터링 지역 버튼 참조
         final Button filter_local = (Button) dialogView.findViewById(R.id.filter_dialog_local);
+        RippleView rippleView=(RippleView)dialogView.findViewById(R.id.filter_dialog_local_ripple);
 
         //필터링 성별 버튼 참조
-        final FrameLayout manBtn = (FrameLayout) dialogView.findViewById(R.id.frg_first_man_btn);
-        final FrameLayout womanBtn = (FrameLayout) dialogView.findViewById(R.id.frg_first_woman_btn);
+        final FrameLayout manBtn = (FrameLayout) dialogView.findViewById(R.id.filter_dialog_man_btn);
+        final FrameLayout womanBtn = (FrameLayout) dialogView.findViewById(R.id.filter_dialog_woman_btn);
 
-        final TextView manText = (TextView) dialogView.findViewById(R.id.frg_first_man_txt);
-        final TextView womanText = (TextView) dialogView.findViewById(R.id.frg_first_woman_txt);
+        final RippleView manRipple=(RippleView)dialogView.findViewById(R.id.filter_dialog_man_ripple);
+        final RippleView womanRipple=(RippleView)dialogView.findViewById(R.id.filter_dialog_woman_ripple);
+
+        final TextView manText = (TextView) dialogView.findViewById(R.id.filter_dialog_man_txt);
+        final TextView womanText = (TextView) dialogView.findViewById(R.id.filter_dialog_woman_txt);
         //필터링 업로드 됐을때 버튼 참조
         final Button filter_upload_btn = (Button) dialogView.findViewById(R.id.filter_upload_btn);
 
-        genderBtnClick(manBtn, womanText, manText);
-        genderBtnClick(womanBtn, womanText, manText);
+        rippleView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
 
-
-        filter_local.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                //dialog ListView 메소드 (지역 배열,제목,버튼)
+            public void onComplete(RippleView rippleView) {
+                Log.d("Sample", "Ripple completed");
                 showDialog(itemsLocal, "지역선택", filter_local);
             }
+
         });
+        manRipple.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
+            @Override
+            public void onComplete(RippleView rippleView) {
+                manBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        manTextChange(womanText, manText);
+                    }
+                });
+
+            }
+        });
+        womanRipple.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
+            @Override
+            public void onComplete(RippleView rippleView) {
+                womanBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        womanTextChange(womanText, manText);
+                    }
+                });
+
+            }
+        });
+
+
+
 
 
         filter_upload_btn.setOnClickListener(new View.OnClickListener() {
@@ -242,12 +239,49 @@ public class FirstMainFrg extends Fragment {
             }
 
         });
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setView(dialogView);
-        filterDialog = builder.create();
-        filterDialog.show();
+
+        BottomSheetDialog mDialog = new BottomSheetDialog(getActivity());
+        mDialog
+                .contentView(dialogView)
+                .heightParam(ViewGroup.LayoutParams.WRAP_CONTENT)
+                .inDuration(500)
+                .cancelable(true)
+                .show();
     }
 
+    private void genderBtnClick(final FrameLayout btn, final TextView womanText, final TextView manText) {
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (btn.getId()) {
+                    case R.id.filter_dialog_man_btn:
+                        manTextChange(womanText, manText);
+                        break;
+
+                    case R.id.filter_dialog_woman_btn:
+                        womanTextChange(womanText, manText);
+                        break;
+                }
+            }
+        });
+
+    }
+
+    private void manTextChange(TextView womanText, TextView manText) {
+        genderCheck = "남자";
+        womanText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+        womanText.setTextColor(Color.GRAY);
+        manText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+        manText.setTextColor(Color.BLACK);
+    }
+
+    private void womanTextChange(TextView womanText, TextView manText) {
+        genderCheck = "여자";
+        womanText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+        womanText.setTextColor(Color.BLACK);
+        manText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+        manText.setTextColor(Color.GRAY);
+    }
 
     //리스트 다이아로그
     private void showDialog(final String[] item, String title, final Button btn) {

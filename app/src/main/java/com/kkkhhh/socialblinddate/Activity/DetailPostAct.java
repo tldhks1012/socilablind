@@ -42,6 +42,7 @@ import com.kkkhhh.socialblinddate.R;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.rey.material.widget.ImageButton;
 import com.rey.material.widget.ProgressView;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +53,8 @@ public class DetailPostAct extends AppCompatActivity {
 
     private TextView bodyTv,  nicknameTv, noImgTv;
     private ImageView profileIv, detailImgIv;
+    private ImageButton update,delete,profile,message,report;
+
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference = firebaseDatabase.getReference().getRoot();
@@ -59,7 +62,6 @@ public class DetailPostAct extends AppCompatActivity {
     private String gender, postKey, local, detailImgStr;
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
     private ProgressView imgProgressView,progressView;
-    private FrameLayout goToProfile, goToMessage, deleteBtn, updateBtn;
     private LinearLayout noUidMenu, uIDMenu;
     private String postUid;
     private RequestManager mGlideRequestManager;
@@ -93,23 +95,25 @@ public class DetailPostAct extends AppCompatActivity {
         nicknameTv = (TextView) findViewById(R.id.detail_profile_nickname);
         profileIv = (ImageView) findViewById(R.id.detail_profile_img);
         detailImgIv = (ImageView) findViewById(R.id.detail_post_img);
+        update=(ImageButton)findViewById(R.id.post_update);
+        delete=(ImageButton)findViewById(R.id.post_delete);
+        profile=(ImageButton)findViewById(R.id.post_profile);
+        message=(ImageButton)findViewById(R.id.post_message);
+        report=(ImageButton)findViewById(R.id.post_report);
         noImgTv = (TextView) findViewById(R.id.detail_no_img);
         imgProgressView = (ProgressView) findViewById(R.id.detail_image_progress);
         progressView=(ProgressView) findViewById(R.id.progressview);
         cardView=(CardView)findViewById(R.id.card_view);
-        goToProfile = (FrameLayout) findViewById(R.id.go_to_profile);
-        goToMessage = (FrameLayout) findViewById(R.id.go_to_message);
         noUidMenu = (LinearLayout) findViewById(R.id.detail_no_uid_menu);
         uIDMenu = (LinearLayout) findViewById(R.id.detail_uid_menu);
-        deleteBtn = (FrameLayout) findViewById(R.id.detail_post_delete_btn);
-        updateBtn = (FrameLayout) findViewById(R.id.detail_post_change_btn);
+
 
         cardView.setVisibility(View.INVISIBLE);
         getData();
-        _deletePost(deleteBtn);
-        _updatePost(updateBtn);
-        sendMessage();
-        profileView();
+        _deletePost(delete);
+        _updatePost(update);
+        sendMessage(message);
+        profileView(profile);
         mGlideRequestManager=Glide.with(getApplicationContext());
     }
 //초기 레퍼런스
@@ -157,7 +161,7 @@ public class DetailPostAct extends AppCompatActivity {
                                 storageReference.child(post.userProfileImg).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
-                                        mGlideRequestManager.load(uri).override(50,50).placeholder(R.drawable.ic_action_list_my_white).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
+                                        mGlideRequestManager.load(uri).placeholder(R.drawable.ic_action_list_my_white).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).
                                                listener(new RequestListener<Uri, GlideDrawable>() {
                                                    @Override
                                                    public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -225,8 +229,8 @@ public class DetailPostAct extends AppCompatActivity {
         });
     }
      //수정 구현
-    private void _updatePost(FrameLayout frameLayout) {
-        frameLayout.setOnClickListener(new View.OnClickListener() {
+    private void _updatePost(ImageButton imageButton) {
+        imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(DetailPostAct.this, PostWriterAct.class);
@@ -239,8 +243,8 @@ public class DetailPostAct extends AppCompatActivity {
     }
 
      //삭제 구현
-    private void _deletePost(FrameLayout frameLayout) {
-        frameLayout.setOnClickListener(new View.OnClickListener() {
+    private void _deletePost(ImageButton imageButton) {
+        imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialogYesOrNo();
@@ -295,8 +299,8 @@ public class DetailPostAct extends AppCompatActivity {
         finish();
     }
 
-    private void sendMessage() {
-        goToMessage.setOnClickListener(new View.OnClickListener() {
+    private void sendMessage(ImageButton imageButton) {
+        imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialogSendMessage();
@@ -393,8 +397,8 @@ public class DetailPostAct extends AppCompatActivity {
     }
 
 
-    private void profileView(){
-        goToProfile.setOnClickListener(new View.OnClickListener() {
+    private void profileView(ImageButton imageButton){
+        imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent =new Intent(getApplicationContext(),ProfileActivity.class);
